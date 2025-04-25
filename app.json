@@ -15,7 +15,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.clydemondero.scoreboardcontroller"
     },
     "web": {
       "bundler": "metro",
@@ -32,10 +38,27 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "react-native-ble-manager",
+        {
+          "isBleRequired": true,
+          "neverForLocation": true,
+          "companionDeviceEnabled": false,
+          "bluetoothAlwaysPermission": "Allow BLE DEMO APP to connect to bluetooth devices"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "dd942236-556f-45e0-a55f-ab3d463eb239"
+      }
     }
   }
 }
