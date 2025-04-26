@@ -120,7 +120,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   };
 
   return (
-    <View className="flex-1 bg-[#282828] justify-center gap-8 py-4 px-4">
+    <View className="flex-1 bg-[#09090B] justify-center gap-8 py-4 px-4">
       {/* Modal for Editing Score */}
       <Modal
         transparent
@@ -128,8 +128,8 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-[#282828]/75 blur-md">
-          <View className="bg-[#282828] rounded-2xl p-6 w-72 shadow-lg items-center">
+        <View className="flex-1 justify-center items-center bg-[#09090B]/75 blur-md">
+          <View className="bg-[#09090B] rounded-2xl p-6 w-72 shadow-lg items-center">
             <Text className="text-white text-xl font-bold mb-4">
               Edit {editingTeam} Score
             </Text>
