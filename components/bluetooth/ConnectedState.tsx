@@ -177,9 +177,9 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           Ball Possession
         </Text>
         {gameData.possession === "HOME" ? (
-          <AntDesign name="caretright" size={28} color="#00BFA6" />
+          <AntDesign name="caretright" size={28} color="green" />
         ) : gameData.possession === "AWAY" ? (
-          <AntDesign name="caretleft" size={28} color="#FF5252" />
+          <AntDesign name="caretleft" size={28} color="yellow" />
         ) : (
           <View style={{ height: 28 }} />
         )}
@@ -194,7 +194,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
           <Text
-            className="text-green-400 text-7xl font-extrabold"
+            className="text-yellow-400 text-7xl font-extrabold"
             adjustsFontSizeToFit
             numberOfLines={1}
           >
@@ -239,7 +239,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
           <Text
-            className="text-red-400 text-7xl font-extrabold"
+            className="text-green-500 text-7xl font-extrabold"
             adjustsFontSizeToFit
             numberOfLines={1}
           >
@@ -297,49 +297,56 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </View>
 
         {/* Score Increments */}
-        <View className="flex-row flex-wrap justify-between gap-2">
-          {[1, 2, 3].map((n) => (
-            <TouchableOpacity
-              key={`home+${n}`}
-              onPress={() => incHome(n)}
-              className="bg-white p-4 flex-1 min-w-[30%] rounded-xl"
-            >
-              <Text className="text-yellow-500 text-center font-bold text-lg">
-                +{n}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          {[1, 2, 3].map((n) => (
-            <TouchableOpacity
-              key={`away+${n}`}
-              onPress={() => incAway(n)}
-              className="bg-white p-4 flex-1 min-w-[30%] rounded-xl"
-            >
-              <Text className="text-green-500 text-center font-bold text-lg">
-                +{n}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Score Decrements */}
         <View className="flex-row gap-4">
-          <TouchableOpacity
-            onPress={decHome}
-            className="flex-1 bg-white p-4 rounded-xl"
-          >
-            <Text className="text-yellow-500 text-center font-bold text-lg">
-              -1
+          {/* Home Controls */}
+          <View className="flex-1 gap-2">
+            <Text className="text-yellow-500 text-center font-bold mb-2">
+              HOME
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={decAway}
-            className="flex-1 bg-white p-4 rounded-xl"
-          >
-            <Text className="text-green-500 text-center font-bold text-lg">
-              -1
+            <View className="flex-row flex-wrap gap-2 justify-center">
+              {[1, 2, 3].map((n) => (
+                <TouchableOpacity
+                  key={`home+${n}`}
+                  onPress={() => incHome(n)}
+                  className="bg-white p-4 rounded-xl w-[30%] items-center"
+                >
+                  <Text className="text-yellow-500 font-bold text-lg">
+                    +{n}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                onPress={decHome}
+                className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
+              >
+                <Text className="text-yellow-500 font-bold text-lg">-1</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Away Controls */}
+          <View className="flex-1 gap-2">
+            <Text className="text-green-500 text-center font-bold mb-2">
+              AWAY
             </Text>
-          </TouchableOpacity>
+            <View className="flex-row flex-wrap gap-2 justify-center">
+              {[1, 2, 3].map((n) => (
+                <TouchableOpacity
+                  key={`away+${n}`}
+                  onPress={() => incAway(n)}
+                  className="bg-white p-4 rounded-xl w-[30%] items-center"
+                >
+                  <Text className="text-green-500 font-bold text-lg">+{n}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                onPress={decAway}
+                className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
+              >
+                <Text className="text-green-500 font-bold text-lg">-1</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* Possession Buttons */}
@@ -349,7 +356,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             className="flex-1 bg-yellow-500 p-4 rounded-xl"
           >
             <Text className="text-white text-center font-bold text-lg">
-              HOME
+              POSSESSION
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -357,7 +364,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             className="flex-1 bg-green-500 p-4 rounded-xl"
           >
             <Text className="text-white text-center font-bold text-lg">
-              AWAY
+              POSSESSION
             </Text>
           </TouchableOpacity>
         </View>
