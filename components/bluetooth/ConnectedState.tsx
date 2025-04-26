@@ -212,7 +212,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               )}
               :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
             </Text>
-            <Text className="text-red-400 text-5xl font-bold mt-2">
+            <Text className="text-red-600 text-5xl font-bold mt-2">
               {gameData.shotClock}
             </Text>
             <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
