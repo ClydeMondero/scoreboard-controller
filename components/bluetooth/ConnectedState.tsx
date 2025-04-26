@@ -3,10 +3,10 @@ import React from "react";
 import { PeripheralServices } from "@/types/bluetooth";
 
 interface ConnectedStateProps {
-  bleService: PeripheralServices;
+  bleService: PeripheralServices | undefined;
   onRead: () => void;
   onWrite: () => void;
-  onDisconnect: (id: string) => void;
+  onDisconnect: (id: string | undefined) => void;
 }
 
 const ConnectedState: React.FunctionComponent<ConnectedStateProps> = ({
@@ -16,73 +16,211 @@ const ConnectedState: React.FunctionComponent<ConnectedStateProps> = ({
   onWrite,
 }) => {
   return (
-    <>
-      <View style={styles.card}>
-        <Text style={styles.info}>
-          Peripheral ID: {bleService.peripheralId} dBm
-        </Text>
-        <Text style={styles.info}>Service ID: {bleService.serviceId}</Text>
+    <View style={styles.container}>
+      {/* Score Section */}
+      <View style={styles.scoreSection}>
+        <View style={styles.teamBlock}>
+          <Text style={styles.teamLabel}>HOME</Text>
+          <Text style={styles.score}>00</Text>
+          <Text style={styles.subInfo}>FOULS 0</Text>
+          <Text style={styles.subInfo}>TIMEOUTS 2</Text>
+        </View>
+
+        <View style={styles.centerBlock}>
+          <Text style={styles.pressStart}>PRESS START</Text>
+          <Text style={styles.timer}>10:00</Text>
+          <Text style={styles.shotClock}>24</Text>
+          <Text style={styles.period}>PERIOD 1</Text>
+        </View>
+
+        <View style={styles.teamBlock}>
+          <Text style={styles.teamLabel}>AWAY</Text>
+          <Text style={styles.score}>00</Text>
+          <Text style={styles.subInfo}>FOULS 0</Text>
+          <Text style={styles.subInfo}>TIMEOUTS 2</Text>
+        </View>
       </View>
 
-      <View style={styles.actionButtons}>
-        <TouchableOpacity onPress={onRead} style={styles.button}>
-          <Text style={styles.buttonText}>READ</Text>
-        </TouchableOpacity>
+      {/* Control Buttons */}
+      <View style={styles.controlSection}>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.scoreButton}>
+            <Text style={styles.buttonText}>+1</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.startButton}>
+            <Text style={styles.buttonText}>START</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.scoreButton}>
+            <Text style={styles.buttonText}>+1</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity onPress={onWrite} style={styles.button}>
-          <Text style={styles.buttonText}>WRITE</Text>
-        </TouchableOpacity>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.scoreButton}>
+            <Text style={styles.buttonText}>-1</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.pauseButton}>
+            <Text style={styles.buttonText}>PAUSE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.scoreButton}>
+            <Text style={styles.buttonText}>-1</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          onPress={() => onDisconnect(bleService.peripheralId)}
-          style={styles.disconnectButton}
-        >
-          <Text style={styles.buttonText}>DISCONNECT</Text>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.resetButton}>
+            <Text style={styles.buttonText}>RESET 24</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.resetButton}>
+            <Text style={styles.buttonText}>RESET 14</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.foulButton}>
+            <Text style={styles.buttonText}>-F</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.foulButton}>
+            <Text style={styles.buttonText}>+F</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.foulButton}>
+            <Text style={styles.buttonText}>+F</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.foulButton}>
+            <Text style={styles.buttonText}>-F</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Home / Away Bottom Navigation */}
+      <View style={styles.navSection}>
+        <TouchableOpacity style={styles.navButton}>
+          <Text style={styles.buttonText}>HOME</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton}>
+          <Text style={styles.buttonText}>AWAY</Text>
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 };
 
 export default ConnectedState;
 
 const styles = StyleSheet.create({
-  actionButtons: {
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+    padding: 16,
+  },
+  scoreSection: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  teamBlock: {
+    alignItems: "center",
+    flex: 1,
+  },
+  teamLabel: {
+    color: "#fff",
+    fontSize: 18,
+    marginBottom: 4,
+  },
+  score: {
+    color: "#00f",
+    fontSize: 48,
+    fontWeight: "bold",
+  },
+  subInfo: {
+    color: "#fff",
+    fontSize: 14,
+    marginTop: 4,
+  },
+  centerBlock: {
+    alignItems: "center",
+    flex: 1,
+  },
+  pressStart: {
+    color: "#0f0",
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  timer: {
+    color: "#ff0",
+    fontSize: 36,
+    fontWeight: "bold",
+  },
+  shotClock: {
+    color: "#f00",
+    fontSize: 48,
+    fontWeight: "bold",
+    marginTop: 4,
+  },
+  period: {
+    color: "#fff",
+    fontSize: 16,
+    marginTop: 4,
+  },
+  controlSection: {
+    marginTop: 24,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 8,
+  },
+  scoreButton: {
+    backgroundColor: "#007AFF",
+    padding: 16,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  startButton: {
+    backgroundColor: "green",
+    padding: 16,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  pauseButton: {
+    backgroundColor: "gray",
+    padding: 16,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  resetButton: {
+    backgroundColor: "maroon",
+    padding: 16,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  foulButton: {
+    backgroundColor: "#007AFF",
+    padding: 16,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 2,
+  },
+  navSection: {
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 16,
   },
-  button: {
+  navButton: {
     backgroundColor: "#007AFF",
-    padding: 12,
+    padding: 16,
     borderRadius: 8,
-    marginHorizontal: 8,
-    flexGrow: 1,
-  },
-  disconnectButton: {
-    backgroundColor: "red",
-    padding: 12,
-    borderRadius: 8,
+    flex: 1,
     marginHorizontal: 8,
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
     textAlign: "center",
-    fontWeight: "500",
-  },
-  info: {
-    fontSize: 14,
-    color: "#333",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    marginVertical: 8,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    fontWeight: "600",
   },
 });

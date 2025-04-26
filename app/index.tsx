@@ -24,9 +24,9 @@ const SECONDS_TO_SCAN_FOR = 5;
 const SERVICE_UUIDS: string[] = [];
 const ALLOW_DUPLICATES = true;
 
-const DEVICE_SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const TRANSFER_CHARACTERISTIC_UUID = "beb5483f-36e1-4688-b7f5-ea07361b26a9";
-const RECEIVE_CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const DEVICE_SERVICE_UUID = "7140efae-95ea-49d4-9b34-7aea29133e0f";
+const TRANSFER_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
+const RECEIVE_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
 
 const Index: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
@@ -200,8 +200,9 @@ const Index: React.FC = () => {
     }
   };
 
-  const disconnectPeripheral = async (peripheralId: string) => {
+  const disconnectPeripheral = async (peripheralId: string | undefined) => {
     try {
+      if (!peripheralId) return;
       await BleManager.disconnect(peripheralId);
       setBleService(undefined);
       setPeripherals(new Map());
@@ -300,8 +301,13 @@ const Index: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Bluetooth Demo</Text>
-      {!isConnected ? (
+      <ConnectedState
+        onRead={read}
+        onWrite={write}
+        bleService={bleService}
+        onDisconnect={disconnectPeripheral}
+      />
+      {/* {!isConnected ? (
         <DisconnectedState
           peripherals={Array.from(peripherals.values())}
           isScanning={isScanning}
@@ -317,7 +323,7 @@ const Index: React.FC = () => {
             onDisconnect={disconnectPeripheral}
           />
         )
-      )}
+      )} */}
     </View>
   );
 };
