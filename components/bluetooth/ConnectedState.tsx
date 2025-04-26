@@ -122,15 +122,16 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   return (
     <View className="flex-1 bg-[#09090B] justify-center gap-8 py-4 px-4">
       {/* Modal for Editing Score */}
+      {/* Modal for Editing Score */}
       <Modal
         transparent
         visible={modalVisible}
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-[#09090B]/75 blur-md">
-          <View className="bg-[#09090B] rounded-2xl p-6 w-72 shadow-lg items-center">
-            <Text className="text-white text-xl font-bold mb-4">
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-gray-800 rounded-3xl p-6 w-80 shadow-xl items-center">
+            <Text className="text-white text-2xl font-semibold mb-4">
               Edit {editingTeam} Score
             </Text>
             <TextInput
@@ -138,19 +139,21 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               onChangeText={setTempScore}
               keyboardType="numeric"
               maxLength={3}
-              className="border text-white border-neutral-600 rounded-md p-3 w-full text-center text-2xl mb-4"
+              className="bg-gray-700 text-white rounded-lg p-3 w-full text-center text-2xl mb-6"
               autoFocus
             />
-            <View className="flex-row space-x-4 gap-2">
+            <View className="flex-row space-x-4 w-full">
               <TouchableOpacity
                 onPress={saveScore}
-                className="bg-green-500 px-6 py-3 rounded-md"
+                className="flex-1 overflow-hidden rounded-lg"
               >
-                <Text className="text-white font-bold text-lg">Save</Text>
+                <View className="bg-gradient-to-r from-green-400 to-teal-500 py-3 items-center">
+                  <Text className="text-white font-bold text-lg">Save</Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
-                className="bg-red-500 px-6 py-3 rounded-md"
+                className="flex-1 bg-gray-600 rounded-lg py-3 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
               </TouchableOpacity>
@@ -160,63 +163,72 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       </Modal>
 
       {/* Possession Indicator */}
-      <View className="flex-col justify-center items-center mb-1">
-        <Text className="text-white text-xs mb-1">BALL POSSESSION</Text>
+      <View className="items-center mb-4">
+        <Text className="text-gray-400 uppercase text-sm mb-1">
+          Ball Possession
+        </Text>
         {gameData.possession === "HOME" ? (
-          <AntDesign name="caretright" size={28} color="#FFFFFF" />
+          <AntDesign name="caretright" size={28} color="#00BFA6" />
         ) : gameData.possession === "AWAY" ? (
-          <AntDesign name="caretleft" size={28} color="#FFFFFF" />
+          <AntDesign name="caretleft" size={28} color="#FF5252" />
         ) : (
           <View style={{ height: 28 }} />
         )}
       </View>
 
       {/* Score Section */}
-      <View className="flex-row justify-around items-center mb-2">
-        <View className="flex-1 items-center">
-          <Text className="text-white text-base font-bold mb-2">HOME</Text>
-          <TouchableOpacity onPress={() => openEditScore("HOME")}>
-            <Text className="text-yellow-400 text-7xl font-bold">
-              {gameData.homeScore}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <View className="flex-row justify-between items-center mb-6">
+        {/* Home */}
+        <TouchableOpacity
+          onPress={() => openEditScore("HOME")}
+          className="flex-1 items-center"
+        >
+          <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
+          <Text className="text-green-400 text-8xl font-extrabold">
+            {gameData.homeScore}
+          </Text>
+        </TouchableOpacity>
 
-        <View className="flex-1 items-center gap-2">
-          <Text className="text-white text-xs mb-1">PERIOD</Text>
-          <Text className="text-white text-2xl tracking-widest font-bold mb-2">
-            {Math.floor(gameData.remainingSeconds / 60)
-              .toString()
-              .padStart(2, "0")}
-            :{(gameData.remainingSeconds % 60).toString().padStart(2, "0")}
-          </Text>
-          <Text className="text-red-500 text-6xl font-extrabold">
-            {gameData.shotClock}
-          </Text>
-          <Text className="text-white text-base mt-2">
-            PERIOD {gameData.selectedPeriod}
-          </Text>
+        {/* Center */}
+        <View className="flex-1 items-center">
+          <View className="bg-gray-800 rounded-3xl p-4 mb-4 w-full items-center shadow-lg">
+            <Text className="text-white text-3xl font-mono">
+              {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+                2,
+                "0"
+              )}
+              :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
+            </Text>
+            <Text className="text-red-400 text-5xl font-bold mt-1">
+              {gameData.shotClock}
+            </Text>
+            <Text className="text-gray-400 uppercase text-xs tracking-wide mt-1">
+              Period {gameData.selectedPeriod}
+            </Text>
+          </View>
           <TouchableOpacity
             onPressIn={() => sendCommand("PRESS")}
             onPressOut={() => sendCommand("RELEASE")}
-            className="mt-2"
+            className="p-3 bg-blue-600 rounded-full shadow-md"
           >
             <MaterialCommunityIcons
               name="bullhorn-variant"
               size={28}
-              color="#FFFFFF"
+              color="#FFF"
             />
           </TouchableOpacity>
         </View>
 
-        <View className="flex-1 items-center">
-          <Text className="text-white text-base font-bold mb-2">AWAY</Text>
-          <TouchableOpacity onPress={() => openEditScore("AWAY")}>
-            <Text className="text-green-400 text-7xl font-bold">
-              {gameData.awayScore}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* Away */}
+        <TouchableOpacity
+          onPress={() => openEditScore("AWAY")}
+          className="flex-1 items-center"
+        >
+          <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
+          <Text className="text-red-400 text-8xl font-extrabold">
+            {gameData.awayScore}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Control Buttons */}
