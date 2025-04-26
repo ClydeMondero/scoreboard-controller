@@ -331,9 +331,8 @@ const Index: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#282828",
     paddingVertical: "10%",
-    paddingHorizontal: 20,
   },
 });
 
