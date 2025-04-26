@@ -102,9 +102,12 @@ const Index: React.FC = () => {
     if (!peripheral.name) {
       peripheral.name = "NO NAME";
     }
-    setPeripherals((map) => {
-      return new Map(map.set(peripheral.id, peripheral));
-    });
+
+    if (peripheral.advertising?.serviceUUIDs?.includes(DEVICE_SERVICE_UUID)) {
+      setPeripherals((map) => {
+        return new Map(map.set(peripheral.id, peripheral));
+      });
+    }
   };
 
   const connectPeripheral = async (
@@ -301,13 +304,7 @@ const Index: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <ConnectedState
-        onRead={read}
-        onWrite={write}
-        bleService={bleService}
-        onDisconnect={disconnectPeripheral}
-      />
-      {/* {!isConnected ? (
+      {!isConnected ? (
         <DisconnectedState
           peripherals={Array.from(peripherals.values())}
           isScanning={isScanning}
@@ -323,7 +320,7 @@ const Index: React.FC = () => {
             onDisconnect={disconnectPeripheral}
           />
         )
-      )} */}
+      )}
     </View>
   );
 };
