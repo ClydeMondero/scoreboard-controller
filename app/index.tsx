@@ -331,15 +331,9 @@ const Index: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#000",
     paddingVertical: "10%",
     paddingHorizontal: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#333",
   },
 });
 
