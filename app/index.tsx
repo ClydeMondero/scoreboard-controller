@@ -78,6 +78,9 @@ const Index: React.FC = () => {
       }
       return map;
     });
+
+    setBleService(undefined);
+    setIsConnected(false);
   };
 
   const handleConnectPeripheral = (event: any) => {
