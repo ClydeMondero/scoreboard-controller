@@ -50,6 +50,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
 
   const sendCommand = async (cmd: string) => {
+    console.debug("Sending:", cmd);
     if (!bleService) return;
     const data = Array.from(new TextEncoder().encode(cmd));
     try {
@@ -156,7 +157,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   const savePeriod = () => {
     const period = Math.min(9, Math.max(1, parseInt(tempPeriod) || 1));
     setGameData((d) => ({ ...d, selectedPeriod: period }));
-    sendCommand(`PER:${period - gameData.selectedPeriod}`);
+    sendCommand(`SETPERIOD:${period - gameData.selectedPeriod}`);
     setPeriodModalVisible(false);
   };
 
