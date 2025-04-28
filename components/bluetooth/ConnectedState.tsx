@@ -42,11 +42,19 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
     possession: "",
   });
 
+  // Modal visibility and temp inputs
   const [modalVisible, setModalVisible] = useState(false);
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
+  const [timerModalVisible, setTimerModalVisible] = useState(false);
+  const [shotClockModalVisible, setShotClockModalVisible] = useState(false);
+
   const [tempPeriod, setTempPeriod] = useState("");
-  const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [tempScore, setTempScore] = useState("");
+  const [tempMinutes, setTempMinutes] = useState("");
+  const [tempSeconds, setTempSeconds] = useState("");
+  const [tempShot, setTempShot] = useState("");
+
+  const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
 
   const sendCommand = async (cmd: string) => {
@@ -138,8 +146,23 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   };
 
   const openEditPeriod = () => {
+    setIsTimeRunning(false);
     setTempPeriod(gameData.selectedPeriod.toString());
     setPeriodModalVisible(true);
+  };
+
+  const openEditTimer = () => {
+    setIsTimeRunning(false);
+    const mins = Math.floor(gameData.remainingSeconds / 60);
+    const secs = gameData.remainingSeconds % 60;
+    setTempMinutes(mins.toString().padStart(2, "0"));
+    setTempSeconds(secs.toString().padStart(2, "0"));
+    setTimerModalVisible(true);
+  };
+  const openEditShotClock = () => {
+    setIsTimeRunning(false);
+    setTempShot(gameData.shotClock.toString());
+    setShotClockModalVisible(true);
   };
 
   const saveScore = () => {
@@ -159,6 +182,22 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
     setGameData((d) => ({ ...d, selectedPeriod: period }));
     sendCommand(`SETPERIOD:${period - gameData.selectedPeriod}`);
     setPeriodModalVisible(false);
+  };
+
+  const saveTimer = () => {
+    const mins = Math.max(0, parseInt(tempMinutes) || 0);
+    const secs = Math.min(59, Math.max(0, parseInt(tempSeconds) || 0));
+    const total = mins * 60 + secs;
+    sendCommand(`TIME:${total}`);
+    setGameData((d) => ({ ...d, remainingSeconds: total }));
+    setTimerModalVisible(false);
+  };
+
+  const saveShotClock = () => {
+    const shot = Math.max(0, Math.min(99, parseInt(tempShot) || 0));
+    sendCommand(`SETSHOT:${shot}`);
+    setGameData((d) => ({ ...d, shotClock: shot }));
+    setShotClockModalVisible(false);
   };
 
   const renderScoreTimerPortrait = () => (
@@ -192,16 +231,20 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
         {/* Timer */}
         <View className="items-center">
-          <Text className="text-white text-3xl font-mono">
-            {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
-              2,
-              "0"
-            )}
-            :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
-          </Text>
-          <Text className="text-red-600 text-5xl font-bold mt-2">
-            {gameData.shotClock}
-          </Text>
+          <TouchableOpacity onPress={openEditTimer}>
+            <Text className="text-white text-3xl font-mono">
+              {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+                2,
+                "0"
+              )}
+              :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openEditShotClock}>
+            <Text className="text-red-600 text-5xl font-bold mt-2">
+              {gameData.shotClock}
+            </Text>
+          </TouchableOpacity>
 
           <TouchableOpacity onPress={openEditPeriod}>
             <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
@@ -281,16 +324,20 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
         {/* Timer */}
         <View className="items-center">
-          <Text className="text-white text-3xl font-mono">
-            {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
-              2,
-              "0"
-            )}
-            :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
-          </Text>
-          <Text className="text-red-600 text-5xl font-bold mt-2">
-            {gameData.shotClock}
-          </Text>
+          <TouchableOpacity onPress={openEditTimer}>
+            <Text className="text-white text-3xl font-mono">
+              {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+                2,
+                "0"
+              )}
+              :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openEditShotClock}>
+            <Text className="text-red-600 text-5xl font-bold mt-2">
+              {gameData.shotClock}
+            </Text>
+          </TouchableOpacity>
 
           <TouchableOpacity onPress={openEditPeriod}>
             <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
@@ -345,30 +392,16 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       {/* Start & Reset | Pause & Reset */}
       <View className="flex-row justify-evenly gap-6">
         {/* Start & Pause Column */}
-        <View className="gap-4">
-          <TouchableOpacity
-            onPress={handleStart}
-            disabled={isTimeRunning}
-            className={`p-4 rounded-xl w-28 ${
-              isTimeRunning ? "bg-gray-400" : "bg-green-500"
-            }`}
-          >
-            <Text className="text-white text-center text-lg font-bold">
-              START
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handlePause}
-            disabled={!isTimeRunning}
-            className={`p-4 rounded-xl w-28 ${
-              !isTimeRunning ? "bg-gray-400" : "bg-blue-500"
-            }`}
-          >
-            <Text className="text-white text-center text-lg font-bold">
-              PAUSE
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={isTimeRunning ? handlePause : handleStart}
+          className={`justify-center lp-4 rounded-xl w-28 ${
+            isTimeRunning ? "bg-blue-500" : "bg-green-500"
+          }`}
+        >
+          <Text className="text-white text-center text-lg font-bold">
+            {isTimeRunning ? "PAUSE" : "START"}
+          </Text>
+        </TouchableOpacity>
 
         {/* Reset Buttons Column */}
         <View className="gap-4">
@@ -392,7 +425,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <View className="gap-4 flex-1 justify-center">
           <TouchableOpacity
             onPress={handleResetAll}
-            className="justify-center items-center-center bg-red-400 p-4 rounded-xl w-28"
+            className="flex-1 justify-center items-center-center bg-red-400 p-4 rounded-xl w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET All
@@ -634,6 +667,92 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setPeriodModalVisible(false)}
+                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit Timer Modal */}
+      <Modal
+        transparent
+        visible={timerModalVisible}
+        animationType="fade"
+        onRequestClose={() => setTimerModalVisible(false)}
+      >
+        <View className="flex-1 bg-gray-800/50 justify-center items-center">
+          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+            <Text className="text-white text-2xl font-semibold text-center mb-6">
+              Set Game Timer
+            </Text>
+            <View className="flex-row justify-center gap-2 mb-6">
+              <TextInput
+                value={tempMinutes}
+                onChangeText={setTempMinutes}
+                keyboardType="numeric"
+                maxLength={2}
+                autoFocus
+                className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl w-24"
+              />
+              <Text className="text-white text-2xl font-bold">:</Text>
+              <TextInput
+                value={tempSeconds}
+                onChangeText={setTempSeconds}
+                keyboardType="numeric"
+                maxLength={2}
+                className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl w-24"
+              />
+            </View>
+            <View className="flex-row gap-4">
+              <TouchableOpacity
+                onPress={saveTimer}
+                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setTimerModalVisible(false)}
+                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit Shot Clock Modal */}
+      <Modal
+        transparent
+        visible={shotClockModalVisible}
+        animationType="fade"
+        onRequestClose={() => setShotClockModalVisible(false)}
+      >
+        <View className="flex-1 bg-gray-800/50 justify-center items-center">
+          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+            <Text className="text-white text-2xl font-semibold text-center mb-6">
+              Set Shot Clock
+            </Text>
+            <TextInput
+              value={tempShot}
+              onChangeText={setTempShot}
+              keyboardType="numeric"
+              maxLength={2}
+              autoFocus
+              className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl mb-6"
+            />
+            <View className="flex-row gap-4">
+              <TouchableOpacity
+                onPress={saveShotClock}
+                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShotClockModalVisible(false)}
                 className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
