@@ -1,9 +1,8 @@
 {
   "expo": {
-    "name": "scoreboard-controller",
+    "name": "Scoreboard",
     "slug": "scoreboard-controller",
     "version": "1.0.0",
-    "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -46,7 +45,13 @@
           "isBleRequired": true,
           "neverForLocation": true,
           "companionDeviceEnabled": false,
-          "bluetoothAlwaysPermission": "Allow BLE DEMO APP to connect to bluetooth devices"
+          "bluetoothAlwaysPermission": "Allow Scoreboard to connect to bluetooth devices"
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ]
     ],

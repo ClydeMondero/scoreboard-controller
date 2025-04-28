@@ -307,7 +307,13 @@ const Index: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {!isConnected ? (
+      <ConnectedState
+        onRead={read}
+        onWrite={write}
+        bleService={bleService}
+        onDisconnect={disconnectPeripheral}
+      />
+      {/* {!isConnected ? (
         <DisconnectedState
           peripherals={Array.from(peripherals.values())}
           isScanning={isScanning}
@@ -323,7 +329,7 @@ const Index: React.FC = () => {
             onDisconnect={disconnectPeripheral}
           />
         )
-      )}
+      )} */}
     </View>
   );
 };
@@ -332,7 +338,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#09090B",
-    paddingVertical: "10%",
   },
 });
 
