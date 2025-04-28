@@ -43,6 +43,8 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   });
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [periodModalVisible, setPeriodModalVisible] = useState(false);
+  const [tempPeriod, setTempPeriod] = useState("");
   const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [tempScore, setTempScore] = useState("");
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
@@ -134,6 +136,11 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
     setModalVisible(true);
   };
 
+  const openEditPeriod = () => {
+    setTempPeriod(gameData.selectedPeriod.toString());
+    setPeriodModalVisible(true);
+  };
+
   const saveScore = () => {
     const score = Math.min(999, Math.max(0, parseInt(tempScore) || 0));
     if (editingTeam === "HOME") {
@@ -144,6 +151,13 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       sendCommand(`A${score - gameData.awayScore}`);
     }
     setModalVisible(false);
+  };
+
+  const savePeriod = () => {
+    const period = Math.min(9, Math.max(1, parseInt(tempPeriod) || 1));
+    setGameData((d) => ({ ...d, selectedPeriod: period }));
+    sendCommand(`PER:${period - gameData.selectedPeriod}`);
+    setPeriodModalVisible(false);
   };
 
   const renderScoreTimerPortrait = () => (
@@ -187,9 +201,12 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           <Text className="text-red-600 text-5xl font-bold mt-2">
             {gameData.shotClock}
           </Text>
-          <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
-            Period {gameData.selectedPeriod}
-          </Text>
+
+          <TouchableOpacity onPress={openEditPeriod}>
+            <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
+              Period {gameData.selectedPeriod}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Away */}
@@ -573,6 +590,46 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
+                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit Period Modal */}
+      <Modal
+        transparent
+        visible={periodModalVisible}
+        animationType="fade"
+        onRequestClose={() => setPeriodModalVisible(false)}
+      >
+        <View className="flex-1 bg-gray-800/50 justify-center items-center">
+          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+            <Text className="text-white text-2xl font-semibold text-center mb-6">
+              Change Period
+            </Text>
+
+            <TextInput
+              value={tempPeriod}
+              onChangeText={setTempPeriod}
+              keyboardType="numeric"
+              maxLength={1}
+              autoFocus
+              className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl mb-6"
+            />
+
+            <View className="flex-row gap-4 mt-6">
+              <TouchableOpacity
+                onPress={savePeriod}
+                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+              >
+                <Text className="text-white font-bold text-lg">Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setPeriodModalVisible(false)}
                 className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
