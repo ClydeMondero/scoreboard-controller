@@ -136,7 +136,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   };
 
   const renderScoreTimerPortrait = () => (
-    <View className="flex-1 justify-center items-center">
+    <View className="justify-center items-center">
       {/* Possession */}
       <View className="items-center mb-6">
         <Text className="text-gray-400 uppercase text-sm mb-2">
@@ -192,19 +192,32 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* Horn Button */}
-      <TouchableOpacity
-        onPressIn={() => sendCommand("PRESS")}
-        onPressOut={() => sendCommand("RELEASE")}
-        className="bg-blue-600 p-4 rounded-full shadow-md mt-4"
-      >
-        <MaterialCommunityIcons
-          name="bullhorn-variant"
-          size={28}
-          color="#FFF"
-        />
-      </TouchableOpacity>
+      <View className="flex-row justify-between gap-6">
+        {/* Horn Button */}
+        <TouchableOpacity
+          className="bg-yellow-400 p-4 rounded-full shadow-md mt-4"
+          onPress={setPossessionHome}
+        >
+          <AntDesign name="caretleft" size={28} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPressIn={() => sendCommand("PRESS")}
+          onPressOut={() => sendCommand("RELEASE")}
+          className="bg-blue-600 p-4 rounded-full shadow-md mt-4"
+        >
+          <MaterialCommunityIcons
+            name="bullhorn-variant"
+            size={28}
+            color="#FFF"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={setPossessionAway}
+          className="bg-green-500 p-4 rounded-full shadow-md mt-4"
+        >
+          <AntDesign name="caretright" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -400,76 +413,73 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   );
 
   const renderControlsPortrait = () => (
-    <View className="gap-6 px-4 py-6 flex-1 justify-evenly">
-      {/* Start & Reset | Pause & Reset */}
-      <View className="flex-row justify-evenly gap-6">
-        {/* Start & Pause Column */}
-        <View className="gap-4">
-          <TouchableOpacity
-            onPress={handleStart}
-            disabled={isTimeRunning}
-            className={`p-4 rounded-xl w-28 ${
-              isTimeRunning ? "bg-gray-400" : "bg-green-500"
-            }`}
-          >
-            <Text className="text-white text-center text-lg font-bold">
-              START
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handlePause}
-            disabled={!isTimeRunning}
-            className={`p-4 rounded-xl w-28 ${
-              !isTimeRunning ? "bg-gray-400" : "bg-blue-500"
-            }`}
-          >
-            <Text className="text-white text-center text-lg font-bold">
-              PAUSE
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <View className="gap-4">
+      {/* Start & Pause */}
+      <View className="flex-row gap-4">
+        <TouchableOpacity
+          onPress={handleStart}
+          disabled={isTimeRunning}
+          className={`flex-1 p-4 rounded-xl ${
+            isTimeRunning ? "bg-gray-400" : "bg-green-500"
+          }`}
+        >
+          <Text className="text-white text-center text-xl font-bold">
+            START
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePause}
+          disabled={!isTimeRunning}
+          className={`flex-1 p-4 rounded-xl ${
+            !isTimeRunning ? "bg-gray-400" : "bg-blue-500"
+          }`}
+        >
+          <Text className="text-white text-center text-xl font-bold">
+            PAUSE
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Reset Buttons Column */}
-        <View className="gap-4">
-          <TouchableOpacity
-            onPress={handleReset24}
-            className="bg-red-600 p-4 rounded-xl w-28"
-          >
-            <Text className="text-white text-center text-base font-bold">
-              RESET 24
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleReset14}
-            className="bg-red-400 p-4 rounded-xl w-28"
-          >
-            <Text className="text-white text-center text-base font-bold">
-              RESET 14
-            </Text>
-          </TouchableOpacity>
-        </View>
+      {/* Shot Clock Reset */}
+      <View className="flex-row gap-4">
+        <TouchableOpacity
+          onPress={handleReset24}
+          className="flex-1 bg-red-600 p-4 rounded-xl"
+        >
+          <Text className="text-white text-center font-bold text-lg">
+            RESET 24
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleReset14}
+          className="flex-1 bg-red-400 p-4 rounded-xl"
+        >
+          <Text className="text-white text-center font-bold text-lg">
+            RESET 14
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Score Increments */}
-      <View className="flex-row gap-6">
+      <View className="flex-row gap-4">
         {/* Home Controls */}
         <View className="flex-1 gap-2">
-          <Text className="text-yellow-500 text-center font-bold mb-1">
+          <Text className="text-yellow-500 text-center font-bold mb-2">
             HOME
           </Text>
-          <View className="flex-row flex-wrap justify-center gap-2">
+          <View className="flex-row flex-wrap gap-2 justify-center">
             {[1, 2, 3].map((n) => (
               <TouchableOpacity
                 key={`home+${n}`}
                 onPress={() => incHome(n)}
-                className="bg-white w-16 h-16 rounded-full justify-center items-center"
+                className="bg-white p-4 rounded-xl w-[30%] items-center"
               >
                 <Text className="text-yellow-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decHome}
-              className="bg-white w-16 h-16 rounded-full justify-center items-center"
+              className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
             >
               <Text className="text-yellow-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
@@ -478,47 +488,27 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
         {/* Away Controls */}
         <View className="flex-1 gap-2">
-          <Text className="text-green-500 text-center font-bold mb-1">
+          <Text className="text-green-500 text-center font-bold mb-2">
             AWAY
           </Text>
-          <View className="flex-row flex-wrap justify-center gap-2">
+          <View className="flex-row flex-wrap gap-2 justify-center">
             {[1, 2, 3].map((n) => (
               <TouchableOpacity
                 key={`away+${n}`}
                 onPress={() => incAway(n)}
-                className="bg-white w-16 h-16 rounded-full justify-center items-center"
+                className="bg-white p-4 rounded-xl w-[30%] items-center"
               >
                 <Text className="text-green-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decAway}
-              className="bg-white w-16 h-16 rounded-full justify-center items-center"
+              className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
             >
               <Text className="text-green-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-
-      {/* Possession Buttons */}
-      <View className="flex-row justify-evenly gap-4">
-        <TouchableOpacity
-          onPress={setPossessionHome}
-          className="flex-1 bg-yellow-500 p-4 rounded-xl"
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            POSSESSION
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={setPossessionAway}
-          className="flex-1 bg-green-500 p-4 rounded-xl"
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            POSSESSION
-          </Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -570,7 +560,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           {renderControlsLandscape()}
         </View>
       ) : (
-        <View className="flex-1 justify-between">
+        <View className="flex-1 justify-center gap-12">
           {renderScoreTimerPortrait()}
           {renderControlsPortrait()}
         </View>
