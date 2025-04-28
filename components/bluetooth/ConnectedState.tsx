@@ -290,9 +290,12 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           <Text className="text-red-600 text-5xl font-bold mt-2">
             {gameData.shotClock}
           </Text>
-          <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
-            Period {gameData.selectedPeriod}
-          </Text>
+
+          <TouchableOpacity onPress={openEditPeriod}>
+            <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
+              Period {gameData.selectedPeriod}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Away */}
