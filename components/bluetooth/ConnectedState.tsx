@@ -284,7 +284,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
           <Text
-            className="text-yellow-400 text-7xl font-extrabold"
+            className="text-yellow-400 text-7xl "
             style={{ fontFamily: "digital-7" }}
           >
             {gameData.homeScore}
@@ -294,7 +294,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         {/* Timer */}
         <View className="items-center">
           <TouchableOpacity onPress={openEditTimer}>
-            <Text className="text-white text-3xl font-mono">
+            <Text
+              className="text-white text-3xl font-mono"
+              style={{ fontFamily: "digital-7" }}
+            >
               {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
                 2,
                 "0"
@@ -303,7 +306,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={openEditShotClock}>
-            <Text className="text-red-600 text-5xl font-bold mt-2">
+            <Text
+              className="text-red-600 text-5xl mt-2"
+              style={{ fontFamily: "digital-7" }}
+            >
               {gameData.shotClock}
             </Text>
           </TouchableOpacity>
@@ -321,7 +327,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           className="items-center"
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
-          <Text className="text-green-500 text-7xl font-extrabold">
+          <Text
+            className="text-green-500 text-7xl "
+            style={{ fontFamily: "digital-7" }}
+          >
             {gameData.awayScore}
           </Text>
         </TouchableOpacity>
@@ -379,7 +388,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           className="items-center"
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
-          <Text className="text-yellow-400 text-6xl font-extrabold">
+          <Text
+            className="text-yellow-400 text-6xl "
+            style={{ fontFamily: "digital-7" }}
+          >
             {gameData.homeScore}
           </Text>
         </TouchableOpacity>
@@ -387,7 +399,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         {/* Timer */}
         <View className="items-center">
           <TouchableOpacity onPress={openEditTimer}>
-            <Text className="text-white text-3xl font-mono">
+            <Text
+              className="text-white text-3xl font-mono"
+              style={{ fontFamily: "digital-7" }}
+            >
               {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
                 2,
                 "0"
@@ -396,7 +411,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={openEditShotClock}>
-            <Text className="text-red-600 text-5xl font-bold mt-2">
+            <Text
+              className="text-red-600 text-5xl mt-2"
+              style={{ fontFamily: "digital-7" }}
+            >
               {gameData.shotClock}
             </Text>
           </TouchableOpacity>
@@ -414,7 +432,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           className="items-center"
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
-          <Text className="text-green-500 text-6xl font-extrabold">
+          <Text
+            className="text-green-500 text-6xl"
+            style={{ fontFamily: "digital-7" }}
+          >
             {gameData.awayScore}
           </Text>
         </TouchableOpacity>

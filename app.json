@@ -57,7 +57,9 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/digital-7.otf"]
+          "fonts": [
+            "./assets/fonts/digital-7.ttf"
+          ]
         }
       ]
     ],
@@ -69,7 +71,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "dd942236-556f-45e0-a55f-ab3d463eb239"
+        "projectId": "dbf1bdd4-1ea5-4514-8542-3de09e0420f1"
       }
     }
   }
