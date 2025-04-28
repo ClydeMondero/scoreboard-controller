@@ -7,11 +7,13 @@ import {
   useWindowDimensions,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PeripheralServices } from "@/types/bluetooth";
 import BleManager from "react-native-ble-manager";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Characteristic } from "react-native-ble-manager";
+import { Buffer } from "buffer";
 
 interface ConnectedStateProps {
   bleService: PeripheralServices | undefined;
@@ -56,6 +58,38 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
   const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
+
+  // useEffect(() => {
+  // let sub: any;
+  // if (bleService?.notifyTransfer) {
+  //   sub = BleManager.monitorCharacteristicForDevice(
+  //     bleService.peripheralId,
+  //     bleService.serviceId,
+  //     bleService.notifyTransfer,
+  //     (error: any, characteristic: Characteristic) => {
+  //       if (error) {
+  //         console.warn("Notify error:", error);
+  //         return;
+  //       }
+  //       // parse base64 → string
+  //       const raw = Buffer.from(characteristic.value, "base64").toString();
+  //       // match TMM:SS,SCC
+  //       const m = raw.match(/T(\d\d):(\d\d),S(\d\d)/);
+  //       if (m) {
+  //         const [, mm, ss, cc] = m;
+  //         const newSeconds = parseInt(mm) * 60 + parseInt(ss);
+  //         const newShot    = parseInt(cc);
+  //         setGameData(d => ({
+  //           ...d,
+  //           remainingSeconds: newSeconds,
+  //           shotClock:        newShot,
+  //         }));
+  //       }
+  //     }
+  //   );
+  // }
+  // return () => sub?.remove();
+  // }, [bleService]);
 
   const sendCommand = async (cmd: string) => {
     console.debug("Sending:", cmd);

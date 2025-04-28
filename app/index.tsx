@@ -27,6 +27,7 @@ const ALLOW_DUPLICATES = true;
 const DEVICE_SERVICE_UUID = "7140efae-95ea-49d4-9b34-7aea29133e0f";
 const TRANSFER_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
 const RECEIVE_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
+const NOTIFY_CHARACTERISTIC_UUID = "a57908f2-e036-44f9-8b8b-f5c0024cd800";
 
 const Index: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
@@ -153,6 +154,7 @@ const Index: React.FC = () => {
             serviceId: DEVICE_SERVICE_UUID,
             transfer: TRANSFER_CHARACTERISTIC_UUID,
             receive: RECEIVE_CHARACTERISTIC_UUID,
+            notifyTransfer: NOTIFY_CHARACTERISTIC_UUID,
           };
           setBleService(peripheralParameters);
           setIsConnected(true);

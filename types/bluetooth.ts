@@ -3,6 +3,7 @@ export type PeripheralServices = {
   serviceId: string;
   transfer: string;
   receive: string;
+  notifyTransfer: string;
 };
 
 export interface StrippedPeripheral {
