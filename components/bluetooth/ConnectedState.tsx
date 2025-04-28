@@ -76,6 +76,17 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
   const handleReset24 = () => sendCommand("SETSHOT:24");
   const handleReset14 = () => sendCommand("SETSHOT:14");
+  const handleResetAll = () => {
+    setGameData({
+      homeScore: 0,
+      awayScore: 0,
+      remainingSeconds: 600,
+      shotClock: 24,
+      selectedPeriod: 1,
+      possession: "",
+    });
+    sendCommand("RESET");
+  };
 
   const incHome = (value: number) => {
     setGameData((d) => ({
@@ -342,7 +353,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <View className="gap-4">
           <TouchableOpacity
             onPress={handleReset24}
-            className="bg-red-600 p-4 rounded-xl w-28"
+            className="bg-red-800 p-4 rounded-xl w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET 24
@@ -350,10 +361,20 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleReset14}
-            className="bg-red-400 p-4 rounded-xl w-28"
+            className="bg-red-600 p-4 rounded-xl w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET 14
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View className="gap-4 flex-1 justify-center">
+          <TouchableOpacity
+            onPress={handleResetAll}
+            className="justify-center items-center-center bg-red-400 p-4 rounded-xl w-28"
+          >
+            <Text className="text-white text-center text-base font-bold">
+              RESET All
             </Text>
           </TouchableOpacity>
         </View>
@@ -441,21 +462,29 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       </View>
 
       {/* Shot Clock Reset */}
-      <View className="flex-row gap-4">
+      <View className="flex-row flex-wrap gap-4">
         <TouchableOpacity
-          onPress={handleReset24}
-          className="flex-1 bg-red-600 p-4 rounded-xl"
+          onPress={handleResetAll}
+          className="flex-1 bg-red-400 p-4 rounded-xl"
         >
           <Text className="text-white text-center font-bold text-lg">
-            RESET 24
+            RESET All
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReset14}
-          className="flex-1 bg-red-400 p-4 rounded-xl"
+          className="flex-1 bg-red-600 p-4 rounded-xl"
         >
           <Text className="text-white text-center font-bold text-lg">
             RESET 14
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleReset24}
+          className="flex-1 bg-red-800 p-4 rounded-xl"
+        >
+          <Text className="text-white text-center font-bold text-lg">
+            RESET 24
           </Text>
         </TouchableOpacity>
       </View>
@@ -555,7 +584,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
       {/* Main Layout */}
       {isLandscape ? (
-        <View className="flex-row gap-2">
+        <View className="flex-1 flex-row gap-2">
           {renderScoreTimerLandscape()}
           {renderControlsLandscape()}
         </View>
