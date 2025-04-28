@@ -53,6 +53,12 @@
         {
           "initialOrientation": "DEFAULT"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/digital-7.otf"]
+        }
       ]
     ],
     "experiments": {

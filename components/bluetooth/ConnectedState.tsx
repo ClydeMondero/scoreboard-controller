@@ -9,11 +9,12 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { PeripheralServices } from "@/types/bluetooth";
-import BleManager from "react-native-ble-manager";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Characteristic } from "react-native-ble-manager";
-import { Buffer } from "buffer";
+import { NativeEventEmitter, NativeModules } from "react-native";
+import BleManager, {
+  BleManagerDidUpdateValueForCharacteristicEvent,
+} from "react-native-ble-manager";
 
 interface ConnectedStateProps {
   bleService: PeripheralServices | undefined;
@@ -59,37 +60,61 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
   const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
 
-  // useEffect(() => {
-  // let sub: any;
-  // if (bleService?.notifyTransfer) {
-  //   sub = BleManager.monitorCharacteristicForDevice(
-  //     bleService.peripheralId,
-  //     bleService.serviceId,
-  //     bleService.notifyTransfer,
-  //     (error: any, characteristic: Characteristic) => {
-  //       if (error) {
-  //         console.warn("Notify error:", error);
-  //         return;
-  //       }
-  //       // parse base64 → string
-  //       const raw = Buffer.from(characteristic.value, "base64").toString();
-  //       // match TMM:SS,SCC
-  //       const m = raw.match(/T(\d\d):(\d\d),S(\d\d)/);
-  //       if (m) {
-  //         const [, mm, ss, cc] = m;
-  //         const newSeconds = parseInt(mm) * 60 + parseInt(ss);
-  //         const newShot    = parseInt(cc);
-  //         setGameData(d => ({
-  //           ...d,
-  //           remainingSeconds: newSeconds,
-  //           shotClock:        newShot,
-  //         }));
-  //       }
-  //     }
-  //   );
-  // }
-  // return () => sub?.remove();
-  // }, [bleService]);
+  // create a BLE event emitter
+  const BleManagerModule = NativeModules.BleManager;
+  const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
+  useEffect(() => {
+    if (!bleService) return;
+
+    // 1️⃣ tell the native module to START sending you notifies on that char
+    BleManager.startNotification(
+      bleService.peripheralId,
+      bleService.serviceId,
+      bleService.notifyTransfer
+    )
+      .then(() => console.log("✔️ Notifications started"))
+      .catch((err) => console.warn("❌ startNotification failed", err));
+
+    // 2️⃣ listen for incoming packets
+    const sub = bleManagerEmitter.addListener(
+      "BleManagerDidUpdateValueForCharacteristic",
+      (event: BleManagerDidUpdateValueForCharacteristicEvent) => {
+        // ignore everything except our peripheral + char
+        if (
+          event.peripheral !== bleService.peripheralId ||
+          event.characteristic !== bleService.notifyTransfer
+        ) {
+          return;
+        }
+
+        // event.value is number[] of bytes
+        const raw = String.fromCharCode(...event.value);
+        // match "TMM:SS,SCC"
+        const m = raw.match(/T(\d\d):(\d\d),S(\d\d)/);
+        if (m) {
+          const [, mm, ss, cc] = m;
+          const newSeconds = parseInt(mm, 10) * 60 + parseInt(ss, 10);
+          const newShot = parseInt(cc, 10);
+          setGameData((d) => ({
+            ...d,
+            remainingSeconds: newSeconds,
+            shotClock: newShot,
+          }));
+        }
+      }
+    );
+
+    // 3️⃣ cleanup on unmount or service change
+    return () => {
+      sub.remove();
+      BleManager.stopNotification(
+        bleService.peripheralId,
+        bleService.serviceId,
+        bleService.notifyTransfer
+      ).catch(() => {});
+    };
+  }, [bleService]);
 
   const sendCommand = async (cmd: string) => {
     console.debug("Sending:", cmd);
@@ -258,7 +283,10 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           className="items-center"
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
-          <Text className="text-yellow-400 text-7xl font-extrabold">
+          <Text
+            className="text-yellow-400 text-7xl font-extrabold"
+            style={{ fontFamily: "digital-7" }}
+          >
             {gameData.homeScore}
           </Text>
         </TouchableOpacity>
@@ -301,7 +329,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       <View className="flex-row justify-between gap-6">
         {/* Horn Button */}
         <TouchableOpacity
-          className="bg-yellow-400 p-4 rounded-full shadow-md mt-4"
+          className="bg-yellow-400 p-4  shadow-md mt-4"
           onPress={setPossessionHome}
         >
           <AntDesign name="caretleft" size={28} color="white" />
@@ -309,7 +337,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <TouchableOpacity
           onPressIn={() => sendCommand("PRESS")}
           onPressOut={() => sendCommand("RELEASE")}
-          className="bg-blue-600 p-4 rounded-full shadow-md mt-4"
+          className="bg-blue-600 p-4  shadow-md mt-4"
         >
           <MaterialCommunityIcons
             name="bullhorn-variant"
@@ -319,7 +347,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={setPossessionAway}
-          className="bg-green-500 p-4 rounded-full shadow-md mt-4"
+          className="bg-green-500 p-4  shadow-md mt-4"
         >
           <AntDesign name="caretright" size={28} color="white" />
         </TouchableOpacity>
@@ -395,7 +423,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       <View className="flex-row justify-between gap-6">
         {/* Horn Button */}
         <TouchableOpacity
-          className="bg-yellow-400 p-4 rounded-full shadow-md mt-4"
+          className="bg-yellow-400 p-4  shadow-md mt-4"
           onPress={setPossessionHome}
         >
           <AntDesign name="caretleft" size={28} color="white" />
@@ -403,7 +431,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <TouchableOpacity
           onPressIn={() => sendCommand("PRESS")}
           onPressOut={() => sendCommand("RELEASE")}
-          className="bg-blue-600 p-4 rounded-full shadow-md mt-4"
+          className="bg-blue-600 p-4  shadow-md mt-4"
         >
           <MaterialCommunityIcons
             name="bullhorn-variant"
@@ -413,7 +441,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={setPossessionAway}
-          className="bg-green-500 p-4 rounded-full shadow-md mt-4"
+          className="bg-green-500 p-4  shadow-md mt-4"
         >
           <AntDesign name="caretright" size={28} color="white" />
         </TouchableOpacity>
@@ -428,7 +456,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         {/* Start & Pause Column */}
         <TouchableOpacity
           onPress={isTimeRunning ? handlePause : handleStart}
-          className={`justify-center lp-4 rounded-xl w-28 ${
+          className={`justify-center lp-4  w-28 ${
             isTimeRunning ? "bg-blue-500" : "bg-green-500"
           }`}
         >
@@ -441,7 +469,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <View className="gap-4">
           <TouchableOpacity
             onPress={handleReset24}
-            className="bg-red-800 p-4 rounded-xl w-28"
+            className="bg-red-800 p-4  w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET 24
@@ -449,7 +477,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleReset14}
-            className="bg-red-600 p-4 rounded-xl w-28"
+            className="bg-red-600 p-4  w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET 14
@@ -459,7 +487,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <View className="gap-4 flex-1 justify-center">
           <TouchableOpacity
             onPress={handleResetAll}
-            className="flex-1 justify-center items-center-center bg-red-400 p-4 rounded-xl w-28"
+            className="flex-1 justify-center items-center-center bg-red-400 p-4  w-28"
           >
             <Text className="text-white text-center text-base font-bold">
               RESET All
@@ -480,14 +508,14 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               <TouchableOpacity
                 key={`home+${n}`}
                 onPress={() => incHome(n)}
-                className="bg-white w-16 h-16 rounded-full justify-center items-center"
+                className="bg-white w-16 h-16  justify-center items-center"
               >
                 <Text className="text-yellow-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decHome}
-              className="bg-white w-16 h-16 rounded-full justify-center items-center"
+              className="bg-white w-16 h-16  justify-center items-center"
             >
               <Text className="text-yellow-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
@@ -504,14 +532,14 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               <TouchableOpacity
                 key={`away+${n}`}
                 onPress={() => incAway(n)}
-                className="bg-white w-16 h-16 rounded-full justify-center items-center"
+                className="bg-white w-16 h-16  justify-center items-center"
               >
                 <Text className="text-green-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decAway}
-              className="bg-white w-16 h-16 rounded-full justify-center items-center"
+              className="bg-white w-16 h-16  justify-center items-center"
             >
               <Text className="text-green-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
@@ -528,7 +556,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <TouchableOpacity
           onPress={handleStart}
           disabled={isTimeRunning}
-          className={`flex-1 p-4 rounded-xl ${
+          className={`flex-1 p-4  ${
             isTimeRunning ? "bg-gray-400" : "bg-green-500"
           }`}
         >
@@ -539,7 +567,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <TouchableOpacity
           onPress={handlePause}
           disabled={!isTimeRunning}
-          className={`flex-1 p-4 rounded-xl ${
+          className={`flex-1 p-4  ${
             !isTimeRunning ? "bg-gray-400" : "bg-blue-500"
           }`}
         >
@@ -553,7 +581,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       <View className="flex-row flex-wrap gap-4">
         <TouchableOpacity
           onPress={handleResetAll}
-          className="flex-1 bg-red-400 p-4 rounded-xl"
+          className="flex-1 bg-red-400 p-4 "
         >
           <Text className="text-white text-center font-bold text-lg">
             RESET All
@@ -561,7 +589,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReset14}
-          className="flex-1 bg-red-600 p-4 rounded-xl"
+          className="flex-1 bg-red-600 p-4 "
         >
           <Text className="text-white text-center font-bold text-lg">
             RESET 14
@@ -569,7 +597,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReset24}
-          className="flex-1 bg-red-800 p-4 rounded-xl"
+          className="flex-1 bg-red-800 p-4 "
         >
           <Text className="text-white text-center font-bold text-lg">
             RESET 24
@@ -589,14 +617,14 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               <TouchableOpacity
                 key={`home+${n}`}
                 onPress={() => incHome(n)}
-                className="bg-white p-4 rounded-xl w-[30%] items-center"
+                className="bg-white p-4  w-[30%] items-center"
               >
                 <Text className="text-yellow-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decHome}
-              className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
+              className="flex-1 bg-white p-4  w-[30%] items-center"
             >
               <Text className="text-yellow-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
@@ -613,14 +641,14 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               <TouchableOpacity
                 key={`away+${n}`}
                 onPress={() => incAway(n)}
-                className="bg-white p-4 rounded-xl w-[30%] items-center"
+                className="bg-white p-4  w-[30%] items-center"
               >
                 <Text className="text-green-500 font-bold text-lg">+{n}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
               onPress={decAway}
-              className="flex-1 bg-white p-4 rounded-xl w-[30%] items-center"
+              className="flex-1 bg-white p-4  w-[30%] items-center"
             >
               <Text className="text-green-500 font-bold text-lg">-1</Text>
             </TouchableOpacity>
@@ -640,7 +668,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 bg-gray-800/50 justify-center items-center">
-          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+          <View className="bg-black  p-6 w-80 border-neutral-400 shadow-xl">
             <Text className="text-white text-2xl font-semibold text-center mb-6">
               Edit {editingTeam} Score
             </Text>
@@ -650,18 +678,18 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               keyboardType="numeric"
               maxLength={3}
               autoFocus
-              className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl mb-6"
+              className="bg-gray-100 text-black  p-4 text-center text-2xl mb-6"
             />
             <View className="flex-row gap-4">
               <TouchableOpacity
                 onPress={saveScore}
-                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-green-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
-                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-gray-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
               </TouchableOpacity>
@@ -678,7 +706,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         onRequestClose={() => setPeriodModalVisible(false)}
       >
         <View className="flex-1 bg-gray-800/50 justify-center items-center">
-          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+          <View className="bg-black  p-6 w-80 border-neutral-400 shadow-xl">
             <Text className="text-white text-2xl font-semibold text-center mb-6">
               Change Period
             </Text>
@@ -689,19 +717,19 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               keyboardType="numeric"
               maxLength={1}
               autoFocus
-              className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl mb-6"
+              className="bg-gray-100 text-black  p-4 text-center text-2xl mb-6"
             />
 
             <View className="flex-row gap-4 mt-6">
               <TouchableOpacity
                 onPress={savePeriod}
-                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-green-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setPeriodModalVisible(false)}
-                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-gray-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
               </TouchableOpacity>
@@ -718,7 +746,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         onRequestClose={() => setTimerModalVisible(false)}
       >
         <View className="flex-1 bg-gray-800/50 justify-center items-center">
-          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+          <View className="bg-black  p-6 w-80 border-neutral-400 shadow-xl">
             <Text className="text-white text-2xl font-semibold text-center mb-6">
               Set Game Timer
             </Text>
@@ -729,7 +757,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
                 keyboardType="numeric"
                 maxLength={2}
                 autoFocus
-                className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl w-24"
+                className="bg-gray-100 text-black  p-4 text-center text-2xl w-24"
               />
               <Text className="text-white text-2xl font-bold">:</Text>
               <TextInput
@@ -737,19 +765,19 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
                 onChangeText={setTempSeconds}
                 keyboardType="numeric"
                 maxLength={2}
-                className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl w-24"
+                className="bg-gray-100 text-black  p-4 text-center text-2xl w-24"
               />
             </View>
             <View className="flex-row gap-4">
               <TouchableOpacity
                 onPress={saveTimer}
-                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-green-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setTimerModalVisible(false)}
-                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-gray-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
               </TouchableOpacity>
@@ -766,7 +794,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         onRequestClose={() => setShotClockModalVisible(false)}
       >
         <View className="flex-1 bg-gray-800/50 justify-center items-center">
-          <View className="bg-black rounded-3xl p-6 w-80 border-neutral-400 shadow-xl">
+          <View className="bg-black  p-6 w-80 border-neutral-400 shadow-xl">
             <Text className="text-white text-2xl font-semibold text-center mb-6">
               Set Shot Clock
             </Text>
@@ -776,18 +804,18 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
               keyboardType="numeric"
               maxLength={2}
               autoFocus
-              className="bg-gray-100 text-black rounded-lg p-4 text-center text-2xl mb-6"
+              className="bg-gray-100 text-black  p-4 text-center text-2xl mb-6"
             />
             <View className="flex-row gap-4">
               <TouchableOpacity
                 onPress={saveShotClock}
-                className="flex-1 bg-green-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-green-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setShotClockModalVisible(false)}
-                className="flex-1 bg-gray-600 rounded-lg py-4 items-center"
+                className="flex-1 bg-gray-600  py-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">Cancel</Text>
               </TouchableOpacity>
