@@ -7,21 +7,12 @@ import {
   useWindowDimensions,
   ScrollView,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PeripheralServices } from "@/types/bluetooth";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { NativeEventEmitter, NativeModules } from "react-native";
-import BleManager, {
-  BleManagerDidUpdateValueForCharacteristicEvent,
-} from "react-native-ble-manager";
-
-interface ConnectedStateProps {
-  bleService: PeripheralServices | undefined;
-  onRead: () => Promise<number[] | undefined>;
-  onWrite: () => Promise<void>;
-  onDisconnect: (peripheralId: string) => Promise<void>;
-}
+import BleManager from "react-native-ble-manager";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface GameData {
   homeScore: number;
@@ -32,18 +23,22 @@ interface GameData {
   possession: "HOME" | "AWAY" | "";
 }
 
-export default function ConnectedState({ bleService }: ConnectedStateProps) {
+interface ScoreboardProps {
+  bleService: PeripheralServices | undefined;
+  onRead: () => Promise<number[] | undefined>;
+  onWrite: () => Promise<void>;
+  onDisconnect: (peripheralId: string) => Promise<void>;
+  gameData: GameData;
+  setGameData: React.Dispatch<React.SetStateAction<GameData>>;
+}
+
+export default function Scoreboard({
+  bleService,
+  gameData,
+  setGameData,
+}: ScoreboardProps) {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
-
-  const [gameData, setGameData] = useState<GameData>({
-    homeScore: 0,
-    awayScore: 0,
-    remainingSeconds: 600,
-    shotClock: 24,
-    selectedPeriod: 1,
-    possession: "",
-  });
 
   // Modal visibility and temp inputs
   const [modalVisible, setModalVisible] = useState(false);
@@ -59,62 +54,77 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
   const [editingTeam, setEditingTeam] = useState<"HOME" | "AWAY" | "">("");
   const [isTimeRunning, setIsTimeRunning] = useState<boolean>(false);
-
-  // create a BLE event emitter
-  const BleManagerModule = NativeModules.BleManager;
-  const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+  const sessionId = useRef<string>(`session_${Date.now()}`);
 
   useEffect(() => {
-    if (!bleService) return;
+    const storeData = async (value: GameData) => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("sessions");
+        let existingSessions: any[] = [];
 
-    // 1️⃣ tell the native module to START sending you notifies on that char
-    BleManager.startNotification(
-      bleService.peripheralId,
-      bleService.serviceId,
-      bleService.notifyTransfer
-    )
-      .then(() => console.log("✔️ Notifications started"))
-      .catch((err) => console.warn("❌ startNotification failed", err));
-
-    // 2️⃣ listen for incoming packets
-    const sub = bleManagerEmitter.addListener(
-      "BleManagerDidUpdateValueForCharacteristic",
-      (event: BleManagerDidUpdateValueForCharacteristicEvent) => {
-        // ignore everything except our peripheral + char
-        if (
-          event.peripheral !== bleService.peripheralId ||
-          event.characteristic !== bleService.notifyTransfer
-        ) {
-          return;
+        if (jsonValue) {
+          const parsed = JSON.parse(jsonValue);
+          if (Array.isArray(parsed)) {
+            existingSessions = parsed;
+          }
         }
 
-        // event.value is number[] of bytes
-        const raw = String.fromCharCode(...event.value);
-        // match "TMM:SS,SCC"
-        const m = raw.match(/T(\d\d):(\d\d),S(\d\d)/);
-        if (m) {
-          const [, mm, ss, cc] = m;
-          const newSeconds = parseInt(mm, 10) * 60 + parseInt(ss, 10);
-          const newShot = parseInt(cc, 10);
-          setGameData((d) => ({
-            ...d,
-            remainingSeconds: newSeconds,
-            shotClock: newShot,
-          }));
+        const newSession = {
+          id: sessionId.current,
+          ...value,
+        };
+
+        // Check if session already exists
+        const sessionIndex = existingSessions.findIndex(
+          (session) => session.id === sessionId.current
+        );
+
+        if (sessionIndex !== -1) {
+          // Update the existing session
+          existingSessions[sessionIndex] = newSession;
+        } else {
+          // Add new session
+          existingSessions.push(newSession);
         }
+
+        // Keep only the last 5 sessions
+        const limitedSessions = existingSessions.slice(-5);
+
+        await AsyncStorage.setItem("sessions", JSON.stringify(limitedSessions));
+      } catch (e) {
+        console.error("Error storing data:", e);
       }
-    );
-
-    // 3️⃣ cleanup on unmount or service change
-    return () => {
-      sub.remove();
-      BleManager.stopNotification(
-        bleService.peripheralId,
-        bleService.serviceId,
-        bleService.notifyTransfer
-      ).catch(() => {});
     };
-  }, [bleService]);
+
+    if (gameData) {
+      storeData(gameData);
+    }
+  }, [gameData]);
+
+  useEffect(() => {
+    let ticker: NodeJS.Timeout;
+    if (isTimeRunning) {
+      ticker = setInterval(() => {
+        setGameData((prev) => {
+          const remainingSeconds = Math.max(prev.remainingSeconds - 1, 0);
+          const shotClock = Math.max(prev.shotClock - 1, 0);
+
+          // send updated values
+          sendCommand(`TIME:${remainingSeconds}`);
+          sendCommand(`SETSHOT:${shotClock}`);
+
+          return {
+            ...prev,
+            remainingSeconds,
+            shotClock,
+          };
+        });
+      }, 1000);
+    }
+    return () => {
+      if (ticker) clearInterval(ticker);
+    };
+  }, [isTimeRunning]);
 
   const sendCommand = async (cmd: string) => {
     console.debug("Sending:", cmd);
@@ -144,8 +154,18 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
     sendCommand("PAUSE");
   };
 
-  const handleReset24 = () => sendCommand("SETSHOT:24");
-  const handleReset14 = () => sendCommand("SETSHOT:14");
+  const handleReset24 = () => {
+    setGameData((d) => ({ ...d, shotClock: 24 }));
+    sendCommand("SETSHOT:24");
+    handlePause();
+  };
+
+  const handleReset14 = () => {
+    setGameData((d) => ({ ...d, shotClock: 14 }));
+    sendCommand("SETSHOT:14");
+    handlePause();
+  };
+
   const handleResetAll = () => {
     setGameData({
       homeScore: 0,

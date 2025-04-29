@@ -1,8 +1,9 @@
-import ConnectedState from "@/components/bluetooth/ConnectedState";
+import Scoreboard from "@/components/Scoreboard";
 import DisconnectedState from "@/components/bluetooth/DisconnectedState";
+import Home from "@/components/Home";
 import { PeripheralServices } from "@/types/bluetooth";
 import { handleAndroidPermissions } from "@/utils/permission";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet, Platform, Alert, Linking } from "react-native";
 import BleManager, {
   BleDisconnectPeripheralEvent,
@@ -29,6 +30,15 @@ const TRANSFER_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
 const RECEIVE_CHARACTERISTIC_UUID = "08a32d92-b94e-44d3-9e47-215dcfc2d79d";
 const NOTIFY_CHARACTERISTIC_UUID = "a57908f2-e036-44f9-8b8b-f5c0024cd800";
 
+interface GameData {
+  homeScore: number;
+  awayScore: number;
+  remainingSeconds: number;
+  shotClock: number;
+  selectedPeriod: number;
+  possession: "HOME" | "AWAY" | "";
+}
+
 const Index: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [peripherals, setPeripherals] = useState(
@@ -38,6 +48,15 @@ const Index: React.FC = () => {
   const [bleService, setBleService] = useState<PeripheralServices | undefined>(
     undefined
   );
+
+  const [gameData, setGameData] = useState<GameData>({
+    homeScore: 0,
+    awayScore: 0,
+    remainingSeconds: 600,
+    shotClock: 24,
+    selectedPeriod: 1,
+    possession: "",
+  });
 
   useEffect(() => {
     BleManager.start({ showAlert: false })
@@ -102,7 +121,6 @@ const Index: React.FC = () => {
   };
 
   const handleDiscoverPeripheral = (peripheral: Peripheral) => {
-    console.debug("[handleDiscoverPeripheral] new BLE peripheral=", peripheral);
     if (!peripheral.name) {
       peripheral.name = "NO NAME";
     }
@@ -309,29 +327,37 @@ const Index: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <ConnectedState
+      {/* <ConnectedState
         onRead={read}
         onWrite={write}
         bleService={bleService}
         onDisconnect={disconnectPeripheral}
-      />
-      {/* {!isConnected ? (
-        <DisconnectedState
-          peripherals={Array.from(peripherals.values())}
-          isScanning={isScanning}
+      /> */}
+      {!isConnected ? (
+        <Home
+          peripherals={peripherals}
           onScanPress={startScan}
           onConnect={connectPeripheral}
+          setGameData={setGameData}
         />
       ) : (
+        // <DisconnectedState
+        //   peripherals={Array.from(peripherals.values())}
+        //   isScanning={isScanning}
+        //   onScanPress={startScan}
+        //   onConnect={connectPeripheral}
+        // />
         bleService && (
-          <ConnectedState
+          <Scoreboard
             onRead={read}
             onWrite={write}
             bleService={bleService}
             onDisconnect={disconnectPeripheral}
+            gameData={gameData}
+            setGameData={setGameData}
           />
         )
-      )} */}
+      )}
     </View>
   );
 };
