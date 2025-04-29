@@ -821,7 +821,13 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             </Text>
             <TextInput
               value={tempShot}
-              onChangeText={setTempShot}
+              onChangeText={(text) => {
+                // Ensure the text is numeric and within the valid range (0-24 seconds)
+                if (!text) setTempShot(text);
+                if (parseInt(text) >= 1 && parseInt(text) <= 24) {
+                  setTempShot(text);
+                }
+              }}
               keyboardType="numeric"
               maxLength={2}
               autoFocus
