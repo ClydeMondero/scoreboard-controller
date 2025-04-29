@@ -309,13 +309,13 @@ const Index: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* <ConnectedState
+      <ConnectedState
         onRead={read}
         onWrite={write}
         bleService={bleService}
         onDisconnect={disconnectPeripheral}
-      /> */}
-      {!isConnected ? (
+      />
+      {/* {!isConnected ? (
         <DisconnectedState
           peripherals={Array.from(peripherals.values())}
           isScanning={isScanning}
@@ -331,7 +331,7 @@ const Index: React.FC = () => {
             onDisconnect={disconnectPeripheral}
           />
         )
-      )}
+      )} */}
     </View>
   );
 };

@@ -276,112 +276,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       </View>
 
       {/* Scores and Timer */}
-      <View className="flex-row items-center justify-between w-full px-10 mb-6">
-        {/* Home */}
-        <TouchableOpacity
-          onPress={() => openEditScore("HOME")}
-          className="items-center"
-        >
-          <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
-          <Text
-            className="text-yellow-400 text-7xl "
-            style={{ fontFamily: "digital-7" }}
-          >
-            {gameData.homeScore}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Timer */}
-        <View className="items-center">
-          <TouchableOpacity onPress={openEditTimer}>
-            <Text
-              className="text-white text-3xl font-mono"
-              style={{ fontFamily: "digital-7" }}
-            >
-              {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
-                2,
-                "0"
-              )}
-              :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openEditShotClock}>
-            <Text
-              className="text-red-600 text-5xl mt-2"
-              style={{ fontFamily: "digital-7" }}
-            >
-              {gameData.shotClock}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={openEditPeriod}>
-            <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
-              Period {gameData.selectedPeriod}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Away */}
-        <TouchableOpacity
-          onPress={() => openEditScore("AWAY")}
-          className="items-center"
-        >
-          <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
-          <Text
-            className="text-green-500 text-7xl "
-            style={{ fontFamily: "digital-7" }}
-          >
-            {gameData.awayScore}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View className="flex-row justify-between gap-6">
-        {/* Horn Button */}
-        <TouchableOpacity
-          className="bg-yellow-400 p-4  shadow-md mt-4"
-          onPress={setPossessionHome}
-        >
-          <AntDesign name="caretleft" size={28} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPressIn={() => sendCommand("PRESS")}
-          onPressOut={() => sendCommand("RELEASE")}
-          className="bg-blue-600 p-4  shadow-md mt-4"
-        >
-          <MaterialCommunityIcons
-            name="bullhorn-variant"
-            size={28}
-            color="#FFF"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={setPossessionAway}
-          className="bg-green-500 p-4  shadow-md mt-4"
-        >
-          <AntDesign name="caretright" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderScoreTimerLandscape = () => (
-    <View className="flex-1 justify-center items-center">
-      {/* Possession */}
-      <View className="items-center mb-6">
-        <Text className="text-gray-400 uppercase text-sm mb-2">
-          Ball Possession
-        </Text>
-        {gameData.possession === "HOME" ? (
-          <AntDesign name="caretleft" size={28} color="yellow" />
-        ) : gameData.possession === "AWAY" ? (
-          <AntDesign name="caretright" size={28} color="green" />
-        ) : (
-          <View style={{ height: 28 }} />
-        )}
-      </View>
-
-      {/* Scores and Timer */}
-      <View className="flex-row items-center justify-between w-full px-10 mb-6">
+      <View className="flex-row items-center justify-around w-full mb-6">
         {/* Home */}
         <TouchableOpacity
           onPress={() => openEditScore("HOME")}
@@ -400,7 +295,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         <View className="items-center">
           <TouchableOpacity onPress={openEditTimer}>
             <Text
-              className="text-white text-3xl font-mono"
+              className="text-white text-7xl font-mono"
               style={{ fontFamily: "digital-7" }}
             >
               {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
@@ -433,22 +328,22 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         >
           <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
           <Text
-            className="text-green-500 text-6xl"
+            className="text-green-500 text-6xl "
             style={{ fontFamily: "digital-7" }}
           >
             {gameData.awayScore}
           </Text>
         </TouchableOpacity>
       </View>
-
       <View className="flex-row justify-between gap-6">
-        {/* Horn Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="bg-yellow-400 p-4  shadow-md mt-4"
           onPress={setPossessionHome}
         >
           <AntDesign name="caretleft" size={28} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+        {/* Horn Button */}
         <TouchableOpacity
           onPressIn={() => sendCommand("PRESS")}
           onPressOut={() => sendCommand("RELEASE")}
@@ -460,115 +355,215 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
             color="#FFF"
           />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={setPossessionAway}
           className="bg-green-500 p-4  shadow-md mt-4"
         >
           <AntDesign name="caretright" size={28} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
 
-  const renderControlsLandscape = () => (
-    <View className="gap-6 px-4 py-6 flex-1 justify-evenly">
-      {/* Start & Reset | Pause & Reset */}
-      <View className="flex-row justify-evenly gap-6">
-        {/* Start & Pause Column */}
-        <TouchableOpacity
-          onPress={isTimeRunning ? handlePause : handleStart}
-          className={`justify-center lp-4  w-28 ${
-            isTimeRunning ? "bg-blue-500" : "bg-green-500"
-          }`}
-        >
-          <Text className="text-white text-center text-lg font-bold">
-            {isTimeRunning ? "PAUSE" : "START"}
-          </Text>
-        </TouchableOpacity>
+  // const renderScoreTimerLandscape = () => (
+  //   <View className="flex-1 justify-center items-center">
+  //     {/* Possession */}
+  //     <View className="items-center mb-6">
+  //       <Text className="text-gray-400 uppercase text-sm mb-2">
+  //         Ball Possession
+  //       </Text>
+  //       {gameData.possession === "HOME" ? (
+  //         <AntDesign name="caretleft" size={28} color="yellow" />
+  //       ) : gameData.possession === "AWAY" ? (
+  //         <AntDesign name="caretright" size={28} color="green" />
+  //       ) : (
+  //         <View style={{ height: 28 }} />
+  //       )}
+  //     </View>
 
-        {/* Reset Buttons Column */}
-        <View className="gap-4">
-          <TouchableOpacity
-            onPress={handleReset24}
-            className="bg-red-800 p-4  w-28"
-          >
-            <Text className="text-white text-center text-base font-bold">
-              RESET 24
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleReset14}
-            className="bg-red-600 p-4  w-28"
-          >
-            <Text className="text-white text-center text-base font-bold">
-              RESET 14
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View className="gap-4 flex-1 justify-center">
-          <TouchableOpacity
-            onPress={handleResetAll}
-            className="flex-1 justify-center items-center-center bg-red-400 p-4  w-28"
-          >
-            <Text className="text-white text-center text-base font-bold">
-              RESET All
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+  //     {/* Scores and Timer */}
+  //     <View className="flex-row items-center justify-between w-full px-10 mb-6">
+  //       {/* Home */}
+  //       <TouchableOpacity
+  //         onPress={() => openEditScore("HOME")}
+  //         className="items-center"
+  //       >
+  //         <Text className="text-gray-300 text-sm font-medium mb-2">HOME</Text>
+  //         <Text
+  //           className="text-yellow-400 text-6xl "
+  //           style={{ fontFamily: "digital-7" }}
+  //         >
+  //           {gameData.homeScore}
+  //         </Text>
+  //       </TouchableOpacity>
 
-      {/* Score Increments */}
-      <View className="flex-row gap-6">
-        {/* Home Controls */}
-        <View className="flex-1 gap-2">
-          <Text className="text-yellow-500 text-center font-bold mb-1">
-            HOME
-          </Text>
-          <View className="flex-row flex-wrap justify-center gap-2">
-            {[1, 2, 3].map((n) => (
-              <TouchableOpacity
-                key={`home+${n}`}
-                onPress={() => incHome(n)}
-                className="bg-white w-16 h-16  justify-center items-center"
-              >
-                <Text className="text-yellow-500 font-bold text-lg">+{n}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              onPress={decHome}
-              className="bg-white w-16 h-16  justify-center items-center"
-            >
-              <Text className="text-yellow-500 font-bold text-lg">-1</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+  //       {/* Timer */}
+  //       <View className="items-center">
+  //         <TouchableOpacity onPress={openEditTimer}>
+  //           <Text
+  //             className="text-white text-3xl font-mono"
+  //             style={{ fontFamily: "digital-7" }}
+  //           >
+  //             {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+  //               2,
+  //               "0"
+  //             )}
+  //             :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
+  //           </Text>
+  //         </TouchableOpacity>
+  //         <TouchableOpacity onPress={openEditShotClock}>
+  //           <Text
+  //             className="text-red-600 text-5xl mt-2"
+  //             style={{ fontFamily: "digital-7" }}
+  //           >
+  //             {gameData.shotClock}
+  //           </Text>
+  //         </TouchableOpacity>
 
-        {/* Away Controls */}
-        <View className="flex-1 gap-2">
-          <Text className="text-green-500 text-center font-bold mb-1">
-            AWAY
-          </Text>
-          <View className="flex-row flex-wrap justify-center gap-2">
-            {[1, 2, 3].map((n) => (
-              <TouchableOpacity
-                key={`away+${n}`}
-                onPress={() => incAway(n)}
-                className="bg-white w-16 h-16  justify-center items-center"
-              >
-                <Text className="text-green-500 font-bold text-lg">+{n}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              onPress={decAway}
-              className="bg-white w-16 h-16  justify-center items-center"
-            >
-              <Text className="text-green-500 font-bold text-lg">-1</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
+  //         <TouchableOpacity onPress={openEditPeriod}>
+  //           <Text className="text-gray-400 uppercase text-xs tracking-widest mt-2">
+  //             Period {gameData.selectedPeriod}
+  //           </Text>
+  //         </TouchableOpacity>
+  //       </View>
+
+  //       {/* Away */}
+  //       <TouchableOpacity
+  //         onPress={() => openEditScore("AWAY")}
+  //         className="items-center"
+  //       >
+  //         <Text className="text-gray-300 text-sm font-medium mb-2">AWAY</Text>
+  //         <Text
+  //           className="text-green-500 text-6xl"
+  //           style={{ fontFamily: "digital-7" }}
+  //         >
+  //           {gameData.awayScore}
+  //         </Text>
+  //       </TouchableOpacity>
+  //     </View>
+
+  //     <View className="flex-row justify-between gap-6">
+  //       {/* Horn Button */}
+  //       <TouchableOpacity
+  //         className="bg-yellow-400 p-4  shadow-md mt-4"
+  //         onPress={setPossessionHome}
+  //       >
+  //         <AntDesign name="caretleft" size={28} color="white" />
+  //       </TouchableOpacity>
+  //       <TouchableOpacity
+  //         onPressIn={() => sendCommand("PRESS")}
+  //         onPressOut={() => sendCommand("RELEASE")}
+  //         className="bg-blue-600 p-4  shadow-md mt-4"
+  //       >
+  //         <MaterialCommunityIcons
+  //           name="bullhorn-variant"
+  //           size={28}
+  //           color="#FFF"
+  //         />
+  //       </TouchableOpacity>
+  //       <TouchableOpacity
+  //         onPress={setPossessionAway}
+  //         className="bg-green-500 p-4  shadow-md mt-4"
+  //       >
+  //         <AntDesign name="caretright" size={28} color="white" />
+  //       </TouchableOpacity>
+  //     </View>
+  //   </View>
+  // );
+
+  // const renderControlsLandscape = () => (
+  //   <View className="gap-6 px-4 py-6 flex-1 justify-evenly">
+  //     {/* Start & Reset | Pause & Reset */}
+  //     <View className="flex-1 flex-row justify-evenly gap-6">
+  //       {/* Start & Pause Column */}
+  //       <TouchableOpacity
+  //         onPress={isTimeRunning ? handlePause : handleStart}
+  //         className={`justify-center lp-4  w-28 ${
+  //           isTimeRunning ? "bg-blue-500" : "bg-green-500"
+  //         }`}
+  //       >
+  //         <Text className="text-white text-center text-lg font-bold">
+  //           {isTimeRunning ? "PAUSE" : "START"}
+  //         </Text>
+  //       </TouchableOpacity>
+
+  //       {/* Reset Buttons Column */}
+  //       <View className="flex-1 g-red-200 gap-4">
+  //         <TouchableOpacity
+  //           onPress={handleReset24}
+  //           className="flex-1 w-full justify-center bg-red-800 p-4  "
+  //         >
+  //           <Text className="text-white text-center text-base font-bold">
+  //             RESET 24
+  //           </Text>
+  //         </TouchableOpacity>
+  //         <TouchableOpacity
+  //           onPress={handleReset14}
+  //           className="flex-1 justify-center bg-red-600 p-4  w-full"
+  //         >
+  //           <Text className="text-white text-center text-base font-bold">
+  //             RESET 14
+  //           </Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //       <View className="gap-4 flex-1 justify-center">
+  //         <TouchableOpacity
+  //           onPress={handleResetAll}
+  //           className="flex-1 justify-center items-center-center bg-red-400 p-4  w-28"
+  //         >
+  //           <Text className="text-white text-center text-base font-bold">
+  //             RESET All
+  //           </Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //     </View>
+
+  //     {/* Score Increments */}
+  //     <View className="flex-row gap-6">
+  //       {/* Home Controls */}
+  //       <View className="flex-1 gap-2">
+  //         <View className="flex-row flex-wrap justify-center gap-2">
+  //           {[1, 2, 3].map((n) => (
+  //             <TouchableOpacity
+  //               key={`home+${n}`}
+  //               onPress={() => incHome(n)}
+  //               className="bg-white w-16 h-16  justify-center items-center"
+  //             >
+  //               <Text className="text-yellow-500 font-bold text-lg">+{n}</Text>
+  //             </TouchableOpacity>
+  //           ))}
+  //           <TouchableOpacity
+  //             onPress={decHome}
+  //             className="bg-white w-16 h-16  justify-center items-center"
+  //           >
+  //             <Text className="text-yellow-500 font-bold text-lg">-1</Text>
+  //           </TouchableOpacity>
+  //         </View>
+  //       </View>
+
+  //       {/* Away Controls */}
+  //       <View className="flex-1 gap-2">
+  //         <View className="flex-1 flex-row flex-wrap justify-center gap-2">
+  //           {[1, 2, 3].map((n) => (
+  //             <TouchableOpacity
+  //               key={`away+${n}`}
+  //               onPress={() => incAway(n)}
+  //               className="bg-white w-16 h-16  justify-center items-center"
+  //             >
+  //               <Text className="text-green-500 font-bold text-lg">+{n}</Text>
+  //             </TouchableOpacity>
+  //           ))}
+  //           <TouchableOpacity
+  //             onPress={decAway}
+  //             className="bg-white w-16 h-16  justify-center items-center"
+  //           >
+  //             <Text className="text-green-500 font-bold text-lg">-1</Text>
+  //           </TouchableOpacity>
+  //         </View>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 
   const renderControlsPortrait = () => (
     <View className="gap-4">
@@ -601,14 +596,6 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       {/* Shot Clock Reset */}
       <View className="flex-row flex-wrap gap-4">
         <TouchableOpacity
-          onPress={handleResetAll}
-          className="flex-1 bg-red-400 p-4 "
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            RESET All
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
           onPress={handleReset14}
           className="flex-1 bg-red-600 p-4 "
         >
@@ -618,7 +605,7 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReset24}
-          className="flex-1 bg-red-800 p-4 "
+          className="flex-1 bg-red-600 p-4 "
         >
           <Text className="text-white text-center font-bold text-lg">
             RESET 24
@@ -630,9 +617,6 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
       <View className="flex-row gap-4">
         {/* Home Controls */}
         <View className="flex-1 gap-2">
-          <Text className="text-yellow-500 text-center font-bold mb-2">
-            HOME
-          </Text>
           <View className="flex-row flex-wrap gap-2 justify-center">
             {[1, 2, 3].map((n) => (
               <TouchableOpacity
@@ -654,9 +638,6 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
         {/* Away Controls */}
         <View className="flex-1 gap-2">
-          <Text className="text-green-500 text-center font-bold mb-2">
-            AWAY
-          </Text>
           <View className="flex-row flex-wrap gap-2 justify-center">
             {[1, 2, 3].map((n) => (
               <TouchableOpacity
@@ -676,11 +657,177 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
           </View>
         </View>
       </View>
+      <View className="flex-row gap-4">
+        <TouchableOpacity
+          onPress={setPossessionHome}
+          className={`flex-1 p-4 bg-yellow-400`}
+        >
+          <Text className="text-white text-center text-xl font-bold">HOME</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={setPossessionAway}
+          className={`flex-1 p-4 bg-green-500
+          `}
+        >
+          <Text className="text-white text-center text-xl font-bold">AWAY</Text>
+        </TouchableOpacity>
+      </View>
+      <View className="flex-row ">
+        <TouchableOpacity
+          onPress={handleResetAll}
+          className="flex-1 bg-red-600 p-4 "
+        >
+          <Text className="text-white text-center font-bold text-lg">
+            RESET All
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderLandscape = () => (
+    <View className="flex-1 flex-row bg-black justify-evenly items-center">
+      {/* Home Score Controls */}
+      <View className="justify-evenly h-40 gap-1">
+        {[1, 2, 3].map((pt) => (
+          <TouchableOpacity
+            key={pt}
+            className="bg-white px-6 py-2"
+            onPress={() => incHome(pt)}
+          >
+            <Text className="text-yellow-500">+{pt}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity className="bg-white px-6 py-2" onPress={decHome}>
+          <Text className="text-yellow-500">-1</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-1 items-center ">
+        <View className="flex-row justify-evenly items-center w-full">
+          <TouchableOpacity onPress={setPossessionHome}>
+            <AntDesign
+              name="caretleft"
+              size={60}
+              color={gameData.possession === "HOME" ? "yellow" : "white"}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openEditTimer}>
+            <Text
+              className="text-9xl text-white"
+              style={{ fontFamily: "digital-7" }}
+            >
+              {String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+                2,
+                "0"
+              )}
+              :{String(gameData.remainingSeconds % 60).padStart(2, "0")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={setPossessionAway}>
+            <AntDesign
+              name="caretright"
+              size={60}
+              color={gameData.possession === "AWAY" ? "green" : "white"}
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={openEditPeriod}>
+          <Text className="text-center text-white text-lg mt-2">
+            PERIOD {gameData.selectedPeriod}
+          </Text>
+        </TouchableOpacity>
+        <View className="flex-1 flex-row  justify-evenly items-center w-full">
+          <View className="items-center">
+            <TouchableOpacity onPress={() => openEditScore("HOME")}>
+              <Text
+                className="text-yellow-500 text-8xl mx-2"
+                style={{ fontFamily: "digital-7" }}
+              >
+                {gameData.homeScore}
+              </Text>
+            </TouchableOpacity>
+            <View className="bg-yellow-500 p-4">
+              <Text className="text-white font-bold">HOME</Text>
+            </View>
+          </View>
+          <View className="items-center mx-2">
+            <TouchableOpacity onPress={openEditShotClock}>
+              <Text
+                className="text-red-500 text-6xl"
+                style={{ fontFamily: "digital-7" }}
+              >
+                {gameData.shotClock}
+              </Text>
+            </TouchableOpacity>
+            <View className="flex-row gap-2 mt-2">
+              <TouchableOpacity
+                className="bg-red-700 p-3"
+                onPress={handleReset14}
+              >
+                <Text className="text-white">14</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-red-700 p-3"
+                onPress={handleResetAll}
+              >
+                <Text className="text-white">RESET</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-red-700 p-3"
+                onPress={handleReset24}
+              >
+                <Text className="text-white">24</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              onPressIn={() => sendCommand("PRESS")}
+              onPressOut={() => sendCommand("RELEASE")}
+              className="bg-blue-600 p-4  shadow-md mt-4"
+            >
+              <MaterialCommunityIcons
+                name="bullhorn-variant"
+                size={28}
+                color="#FFF"
+              />
+            </TouchableOpacity>
+          </View>
+          <View className="items-center">
+            <TouchableOpacity onPress={() => openEditScore("AWAY")}>
+              <Text
+                className="text-green-500 text-8xl mx-2"
+                style={{ fontFamily: "digital-7" }}
+              >
+                {gameData.awayScore}
+              </Text>
+            </TouchableOpacity>
+            <View className="bg-green-500 p-4">
+              <Text className="text-white font-bold">AWAY</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View className="justify-evenly h-40 gap-1">
+        {[1, 2, 3].map((pt) => (
+          <TouchableOpacity
+            key={pt}
+            className="bg-white px-6 py-2"
+            onPress={() => incAway(pt)}
+          >
+            <Text className="text-green-500">+{pt}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity className="bg-white px-6 py-2" onPress={decAway}>
+          <Text className="text-green-500">-1</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
-    <View className="flex-1 bg-[#09090B] p-6">
+    <View className="flex-1 bg-[#09090B] ">
       {/* Edit Score Modal */}
       <Modal
         transparent
@@ -853,12 +1000,9 @@ export default function ConnectedState({ bleService }: ConnectedStateProps) {
 
       {/* Main Layout */}
       {isLandscape ? (
-        <View className="flex-1 flex-row gap-2">
-          {renderScoreTimerLandscape()}
-          {renderControlsLandscape()}
-        </View>
+        <View className="flex-1">{renderLandscape()}</View>
       ) : (
-        <View className="flex-1 justify-center gap-12">
+        <View className="flex-1 justify-center gap-12 p-6">
           {renderScoreTimerPortrait()}
           {renderControlsPortrait()}
         </View>
