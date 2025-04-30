@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Scoreboard",
+    "name": "Scoreboard Controller",
     "slug": "scoreboard-controller",
     "version": "1.0.0",
     "icon": "./assets/images/icon.png",
@@ -57,9 +57,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/digital-7.ttf"
-          ]
+          "fonts": ["./assets/fonts/digital-7.ttf"]
         }
       ]
     ],
