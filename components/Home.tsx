@@ -26,7 +26,7 @@ const Home = ({ peripherals, onScanPress, onConnect, setGameData }: any) => {
         setSessions(sessions);
         return sessions;
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
 

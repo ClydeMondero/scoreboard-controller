@@ -58,18 +58,29 @@ export default function Scoreboard({
   const sessionId = useRef<string>(`session_${Date.now()}`);
 
   useEffect(() => {
-    console.log("game data:", gameData);
-
     if (gameData) {
-      sendCommand(`SCR:H${gameData.homeScore}`);
-      sendCommand(`A${gameData.awayScore}`);
-      sendCommand(`TIME:${gameData.remainingSeconds}`);
+      // Send scores in unified format
+      sendCommand(`HOME:${gameData.homeScore},AWAY:${gameData.awayScore},`);
+
+      // Send time in MM:SS format
+      const mins = String(Math.floor(gameData.remainingSeconds / 60)).padStart(
+        2,
+        "0"
+      );
+      const secs = String(gameData.remainingSeconds % 60).padStart(2, "0");
+      sendCommand(`TIME:${mins}:${secs}`);
+
+      // Send shot clock
       sendCommand(`SETSHOT:${gameData.shotClock}`);
+
+      // Send period
       sendCommand(`SETPERIOD:${gameData.selectedPeriod}`);
+
+      // Send possession
       if (gameData.possession === "HOME") {
-        sendCommand("POS:RIGHT");
-      } else if (gameData.possession === "AWAY") {
         sendCommand("POS:LEFT");
+      } else if (gameData.possession === "AWAY") {
+        sendCommand("POS:RIGHT");
       }
     }
   }, []);
@@ -175,13 +186,11 @@ export default function Scoreboard({
   const handleReset24 = () => {
     setGameData((d) => ({ ...d, shotClock: 24 }));
     sendCommand("SETSHOT:24");
-    handlePause();
   };
 
   const handleReset14 = () => {
     setGameData((d) => ({ ...d, shotClock: 14 }));
     sendCommand("SETSHOT:14");
-    handlePause();
   };
 
   const handleResetAll = () => {
@@ -224,12 +233,12 @@ export default function Scoreboard({
 
   const setPossessionHome = () => {
     setGameData((d) => ({ ...d, possession: "HOME" }));
-    sendCommand("POS:RIGHT");
+    sendCommand("POS:LEFT");
   };
 
   const setPossessionAway = () => {
     setGameData((d) => ({ ...d, possession: "AWAY" }));
-    sendCommand("POS:LEFT");
+    sendCommand("POS:RIGHT");
   };
 
   const openEditScore = (team: "HOME" | "AWAY") => {
@@ -256,6 +265,7 @@ export default function Scoreboard({
     setTempSeconds(secs.toString().padStart(2, "0"));
     setTimerModalVisible(true);
   };
+
   const openEditShotClock = () => {
     setIsTimeRunning(false);
     setTempShot(gameData.shotClock.toString());
@@ -264,13 +274,18 @@ export default function Scoreboard({
 
   const saveScore = () => {
     const score = Math.min(999, Math.max(0, parseInt(tempScore) || 0));
+    let updatedHome = gameData.homeScore;
+    let updatedAway = gameData.awayScore;
+
     if (editingTeam === "HOME") {
+      updatedHome = score;
       setGameData((d) => ({ ...d, homeScore: score }));
-      sendCommand(`SCR:H${score - gameData.homeScore}`);
     } else if (editingTeam === "AWAY") {
+      updatedAway = score;
       setGameData((d) => ({ ...d, awayScore: score }));
-      sendCommand(`A${score - gameData.awayScore}`);
     }
+
+    sendCommand(`HOME:${updatedHome},AWAY:${updatedAway},`);
     setModalVisible(false);
   };
 
@@ -284,9 +299,13 @@ export default function Scoreboard({
   const saveTimer = () => {
     const mins = Math.max(0, parseInt(tempMinutes) || 0);
     const secs = Math.min(59, Math.max(0, parseInt(tempSeconds) || 0));
-    const total = mins * 60 + secs;
-    sendCommand(`TIME:${total}`);
-    setGameData((d) => ({ ...d, remainingSeconds: total }));
+    const timeStr = `${String(mins).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+
+    sendCommand(`TIME:${timeStr}`);
+    setGameData((d) => ({ ...d, remainingSeconds: mins * 60 + secs }));
     setTimerModalVisible(false);
   };
 
@@ -805,6 +824,16 @@ export default function Scoreboard({
                 onPress={handleReset14}
               >
                 <Text className="text-white">14</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className={`${
+                  isTimeRunning ? "bg-gray-400" : "bg-green-500"
+                } p-3`}
+                onPress={() => (isTimeRunning ? handlePause() : handleStart())}
+              >
+                <Text className="text-white">
+                  {isTimeRunning ? "PAUSE" : "START"}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-red-700 p-3"

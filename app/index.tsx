@@ -162,10 +162,6 @@ const Index: React.FC = () => {
         await sleep(900);
         /* Test read current RSSI value, retrieve services first */
         const peripheralData = await BleManager.retrieveServices(peripheral.id);
-        console.log(
-          peripheralData.characteristics,
-          "peripheralData.characteristics======="
-        );
         if (peripheralData.characteristics) {
           const peripheralParameters = {
             peripheralId: peripheral.id,
@@ -195,9 +191,6 @@ const Index: React.FC = () => {
                     characteristic.service,
                     characteristic.characteristic,
                     descriptor.uuid
-                  );
-                  console.log(
-                    `[readDescriptor] Descriptor ${data} for ${peripheral.id} `
                   );
                 } catch (error) {
                   console.error(
