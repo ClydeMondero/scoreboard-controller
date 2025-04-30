@@ -13,6 +13,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import BleManager from "react-native-ble-manager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { v4 as uuid } from "uuid";
 
 interface GameData {
   homeScore: number;
@@ -57,6 +58,23 @@ export default function Scoreboard({
   const sessionId = useRef<string>(`session_${Date.now()}`);
 
   useEffect(() => {
+    console.log("game data:", gameData);
+
+    if (gameData) {
+      sendCommand(`SCR:H${gameData.homeScore}`);
+      sendCommand(`A${gameData.awayScore}`);
+      sendCommand(`TIME:${gameData.remainingSeconds}`);
+      sendCommand(`SETSHOT:${gameData.shotClock}`);
+      sendCommand(`SETPERIOD:${gameData.selectedPeriod}`);
+      if (gameData.possession === "HOME") {
+        sendCommand("POS:RIGHT");
+      } else if (gameData.possession === "AWAY") {
+        sendCommand("POS:LEFT");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const storeData = async (value: GameData) => {
       try {
         const jsonValue = await AsyncStorage.getItem("sessions");
@@ -70,8 +88,8 @@ export default function Scoreboard({
         }
 
         const newSession = {
-          id: sessionId.current,
           ...value,
+          id: sessionId.current,
         };
 
         // Check if session already exists

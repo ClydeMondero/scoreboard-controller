@@ -257,8 +257,6 @@ const Index: React.FC = () => {
   const startScan = async () => {
     const state = await BleManager.checkState();
 
-    console.log(state);
-
     if (state === "off") {
       if (Platform.OS == "ios") {
         Alert.alert(

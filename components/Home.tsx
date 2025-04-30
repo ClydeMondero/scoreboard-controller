@@ -39,7 +39,7 @@ const Home = ({ peripherals, onScanPress, onConnect, setGameData }: any) => {
     setSessions([]);
   };
 
-  const handleConnect = (selectedSession: Session) => {
+  const handleConnect = async (selectedSession: Session) => {
     const targetPeripheral = Array.from(
       peripherals.values() as Iterable<Peripheral>
     ).find(
@@ -51,6 +51,9 @@ const Home = ({ peripherals, onScanPress, onConnect, setGameData }: any) => {
     if (targetPeripheral) {
       onConnect(targetPeripheral);
       setGameData(selectedSession); // Set the selected session's data
+      const newSessions = sessions.filter((s) => s.id !== selectedSession.id);
+      await AsyncStorage.setItem("sessions", JSON.stringify(newSessions));
+      setSessions(newSessions);
     } else {
       console.warn("No matching peripheral found.");
     }
