@@ -73,6 +73,8 @@ export default function Scoreboard({
       // Send shot clock
       sendCommand(`SETSHOT:${gameData.shotClock}`);
 
+      handlePause();
+
       // Send period
       sendCommand(`SETPERIOD:${gameData.selectedPeriod}`);
 
@@ -292,7 +294,7 @@ export default function Scoreboard({
   const savePeriod = () => {
     const period = Math.min(9, Math.max(1, parseInt(tempPeriod) || 1));
     setGameData((d) => ({ ...d, selectedPeriod: period }));
-    sendCommand(`SETPERIOD:${period - gameData.selectedPeriod}`);
+    sendCommand(`SETPERIOD:${period}`);
     setPeriodModalVisible(false);
   };
 
@@ -312,6 +314,7 @@ export default function Scoreboard({
   const saveShotClock = () => {
     const shot = Math.max(0, Math.min(99, parseInt(tempShot) || 0));
     sendCommand(`SETSHOT:${shot}`);
+    handlePause();
     setGameData((d) => ({ ...d, shotClock: shot }));
     setShotClockModalVisible(false);
   };
@@ -828,19 +831,21 @@ export default function Scoreboard({
               <TouchableOpacity
                 className={`${
                   isTimeRunning ? "bg-gray-400" : "bg-green-500"
-                } p-3`}
+                } p-3 min-w-[80px] items-center`}
                 onPress={() => (isTimeRunning ? handlePause() : handleStart())}
               >
-                <Text className="text-white">
+                <Text className="text-white font-bold">
                   {isTimeRunning ? "PAUSE" : "START"}
                 </Text>
               </TouchableOpacity>
+
               <TouchableOpacity
-                className="bg-red-700 p-3"
+                className="bg-red-700 p-3 min-w-[80px] items-center"
                 onPress={handleResetAll}
               >
-                <Text className="text-white">RESET</Text>
+                <Text className="text-white font-bold">RESET</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 className="bg-red-700 p-3"
                 onPress={handleReset24}

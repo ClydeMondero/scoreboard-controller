@@ -330,6 +330,7 @@ const Index: React.FC = () => {
           onScanPress={startScan}
           onConnect={connectPeripheral}
           setGameData={setGameData}
+          bleService={bleService}
         />
       ) : (
         // <DisconnectedState
