@@ -6,6 +6,7 @@ import {
   TextInput,
   useWindowDimensions,
   ScrollView,
+  BackHandler,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { PeripheralServices } from "@/types/bluetooth";
@@ -13,7 +14,6 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import BleManager from "react-native-ble-manager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { v4 as uuid } from "uuid";
 
 interface GameData {
   homeScore: number;
@@ -33,9 +33,12 @@ interface ScoreboardProps {
   setGameData: React.Dispatch<React.SetStateAction<GameData>>;
 }
 
+type Mode = "BLE" | "ESP";
+
 export default function Scoreboard({
   bleService,
   gameData,
+  onDisconnect,
   setGameData,
 }: ScoreboardProps) {
   const { width, height } = useWindowDimensions();
@@ -46,6 +49,7 @@ export default function Scoreboard({
   const [periodModalVisible, setPeriodModalVisible] = useState(false);
   const [timerModalVisible, setTimerModalVisible] = useState(false);
   const [shotClockModalVisible, setShotClockModalVisible] = useState(false);
+  const [choiceModalVisible, setChoiceModalVisible] = useState(true);
 
   const [tempPeriod, setTempPeriod] = useState("");
   const [tempScore, setTempScore] = useState("");
@@ -156,6 +160,17 @@ export default function Scoreboard({
       if (ticker) clearInterval(ticker);
     };
   }, [isTimeRunning]);
+
+  const selectManual = () => {
+    sendCommand("MODE:ESP");
+    setChoiceModalVisible(false);
+    BackHandler.exitApp();
+  };
+
+  const selectBLE = () => {
+    sendCommand("MODE:BLE");
+    setChoiceModalVisible(false);
+  };
 
   const sendCommand = async (cmd: string) => {
     console.debug("Sending:", cmd);
@@ -900,6 +915,44 @@ export default function Scoreboard({
 
   return (
     <View className="flex-1 bg-[#09090B] ">
+      {/* Mode Modal */}
+      <Modal
+        transparent
+        visible={choiceModalVisible}
+        animationType="slide"
+        onRequestClose={() => {}}
+      >
+        <View className="flex-1 bg-black/70 justify-center items-center px-4">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <Text className="text-center text-lg font-semibold mb-4">
+              Bluetooth Controller
+            </Text>
+            <Text className="text-center mb-6">
+              Do you want to continue using this App (Bluetooth), or use Manual
+              (ESP)?
+            </Text>
+            <View className="flex-row gap-4">
+              <TouchableOpacity
+                onPress={selectBLE}
+                className="flex-1 bg-blue-600 py-3 rounded-lg"
+              >
+                <Text className="text-white text-center font-bold">
+                  Use App
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={selectManual}
+                className="flex-1 bg-gray-600 py-3 rounded-lg"
+              >
+                <Text className="text-white text-center font-bold">
+                  Use Manual
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Edit Score Modal */}
       <Modal
         transparent
