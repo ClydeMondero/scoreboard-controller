@@ -925,7 +925,7 @@ export default function Scoreboard({
         <View className="flex-1 bg-black/70 justify-center items-center px-4">
           <View className="bg-white rounded-2xl p-6 w-full max-w-md">
             <Text className="text-center text-lg font-semibold mb-4">
-              Bluetooth Controller
+              Controller Mode
             </Text>
             <Text className="text-center mb-6">
               Do you want to continue using this App (Bluetooth), or use Manual
